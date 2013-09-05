@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>JsReport</Name>
+    <Description>Report Item Template</Description>
+    <Icon>ReportItemTemplate.ico</Icon>
+    <TemplateID>0b943c0b-ccf4-4b17-ac25-b79aa97881a6</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>Report.jsrep</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem SubType="Example" TargetFileName="$fileinputname$.jsrep" ReplaceParameters="true">Report.jsrep</ProjectItem>
+    <ProjectItem TargetFileName="$fileinputname$.jsrep.html" ReplaceParameters="true">Report.jsrep.html</ProjectItem>
+    <ProjectItem TargetFileName="$fileinputname$.jsrep.js" ReplaceParameters="true">Report.jsrep.js</ProjectItem>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>Wizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3318b452adb50aef</Assembly>
+    <FullClassName>Wizard.ItemWizard</FullClassName>
+  </WizardExtension>
+</VSTemplate>
