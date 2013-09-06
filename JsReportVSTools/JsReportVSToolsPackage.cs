@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using JsReportVSTools;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using JsReportVSTools.Options;
 
 namespace JsReportVSTools
 {
@@ -23,6 +24,7 @@ namespace JsReportVSTools
     // This attribute is used to register the information needed to show this package
     // in the Help/About dialog of Visual Studio.
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [ProvideOptionPage(typeof(GeneralOptions), "JsReport", "General", 0, 0, true, new[] { "Reporting" })]
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideEditorExtension(typeof(JsRepEditorFactory), ".jsrep", 50, 

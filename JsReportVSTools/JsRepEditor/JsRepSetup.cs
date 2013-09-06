@@ -10,6 +10,10 @@ using System.Linq;
 using System.Xml.Serialization;
 using System.Text;
 using JsReport;
+using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using JsReportVSTools.JsRepEditor;
+using System.Collections.Generic;
 
 namespace JsReportVSTools
 {
@@ -21,6 +25,12 @@ namespace JsReportVSTools
         public JsRepSetup()
         {
             InitializeComponent();
+
+            cbEngine.Items.Add(new { Text = "handlebars", Value = "handlebars" });
+            cbEngine.Items.Add(new { Text = "jsrender", Value = "jsrender" });
+
+            cbEngine.ValueMember = "Value";
+            cbEngine.DisplayMember = "Text";
         }            
 
         public void LoadFile(string fileName)
@@ -60,13 +70,13 @@ namespace JsReportVSTools
         private void RefreshView()
         {
             tbTimeout.Text = _state.Timeout;
-            tbTemplatingEngine.Text = _state.TemplatingEngine;
+            cbEngine.Text = _state.TemplatingEngine;
 
             if (string.IsNullOrEmpty(_state.SchemaPath)) {
                 lblSchemaFilePath.Hide();
              }
             else {
-                lblSchemaFilePath.Text = _state.SchemaPath;
+                lblSchemaFilePath.Text = Path.GetFileName(_state.SchemaPath);
                 lblSchemaFilePath.Show();
             }         
         }
@@ -74,7 +84,7 @@ namespace JsReportVSTools
         private void tbTimeout_TextChanged(object sender, EventArgs e)
         {
            _state.Timeout = tbTimeout.Text;
-           StateChanged(this, new EventArgs());
+           NotifyChange();
         }
 
         private void openSchemaDialog_click(object sender, EventArgs e)
@@ -86,34 +96,82 @@ namespace JsReportVSTools
 
             _state.SchemaPath = schemaDialog.FileName;
             RefreshView();
-            StateChanged(this, new EventArgs());
+            NotifyChange();
         }
 
-        private void tbTemplatingEngine_TextChanged(object sender, EventArgs e)
+        private void cbEngine_SelectedValueChanged(object sender, EventArgs e)
         {
-            _state.TemplatingEngine = tbTemplatingEngine.Text;
-            StateChanged(this, new EventArgs());
+            if (cbEngine.Text == null)
+                return;
+
+            _state.TemplatingEngine = cbEngine.Text;
+
+            NotifyChange();
         }
 
-        private void btnPreview_Click(object sender, EventArgs e)
+        private void NotifyChange()
         {
-            var service = new ReportingService("http://localhost:3000/");
-
-            var r = service.RenderPreviewAsync(new RenderRequest()
+            if (StateChanged != null)
             {
-                Data = null,
-                Template = new Template()
+                StateChanged(this, new EventArgs());
+            }
+        }
+        
+        private void btnPreview_Click(object sender, EventArgs ea)
+        {
+            try
+            {
+                var url = SetupHelpers.GetReportingServiceUrl();
+                var service = new ReportingService(url);
+
+                var r = service.RenderPreviewAsync(new RenderRequest()
                 {
-                    RenderingEngine = "jsrender",
-                    Html = "Hey",                    
-                },
-                Options = new RenderOptions() { Async = false }                
-            }).Result;
+                    Data = ReadSchema(),
+                    Template = new Template()
+                    {
+                        Html = ReadHtml(),
+                        Helpers = ReadHelpers(),
+                        RenderingEngine = _state.TemplatingEngine
+                    },
+                    Options = new RenderOptions() { Async = false, Type = tbReceipe.Text  }
+                }).Result;
 
-            var reader = new StreamReader(r);
+                var reader = new StreamReader(r.Content);
 
-            var str = reader.ReadToEnd();
-        }    
+                var str = reader.ReadToEnd();
+
+                var tempFile = Path.GetTempFileName();
+                tempFile = Path.ChangeExtension(tempFile, r.FileExtension);
+
+                File.WriteAllText(tempFile, str);
+
+                Process.Start(tempFile);
+            }
+            catch (Exception e)
+            {
+            }
+        }
+
+        private string ReadHtml()
+        {
+            var fileName = Path.GetFileName(_fileName);
+            var dir = new FileInfo(_fileName).Directory.FullName;
+
+            return File.ReadAllText(Path.Combine(dir, fileName + ".html"));
+        }
+
+        private string ReadHelpers()
+        {
+            var fileName = Path.GetFileName(_fileName);
+            var dir = new FileInfo(_fileName).Directory.FullName;
+
+            return File.ReadAllText(Path.Combine(dir, fileName + ".js"));
+        }
+        
+        private object ReadSchema()
+        {
+            return JObject.Parse(File.ReadAllText(_state.SchemaPath));
+        }        
     }
 
     public class ReportDefinition
