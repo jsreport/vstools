@@ -198,6 +198,19 @@
       <Project>{ce6736e3-ffbd-4609-9f1e-a1d3b646879e}</Project>
       <Name>jsreport.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ReportItemTemplate\ReportItemTemplate.csproj">
+      <Project>{2D549043-0B56-42F8-AFC9-8D622E41242A}</Project>
+      <Name>ReportItemTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Wizard\Wizard.csproj">
+      <Project>{2700070C-FD63-48E8-8305-1629DE237948}</Project>
+      <Name>Wizard</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="RichEditObjectModel">

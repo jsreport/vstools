@@ -11,10 +11,15 @@ namespace JsReportVSTools.JsRepEditor
 {
     public static class SetupHelpers
     {
+        private static DTE _dte;
+
+        static SetupHelpers() {
+            _dte = JsReportVSToolsPackage.GetGlobalService(typeof(SDTE)) as DTE;
+        }
+
         internal static Project GetActiveProject()
         {
-            DTE dte = JsReportVSToolsPackage.GetGlobalService(typeof(SDTE)) as DTE;         
-            return GetActiveProject(dte);
+            return GetActiveProject(_dte);
         }
 
         internal static Project GetActiveProject(DTE dte)
@@ -32,11 +37,23 @@ namespace JsReportVSTools.JsRepEditor
 
         public static string GetReportingServiceUrl()
         {
-            DTE env = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
-
-            EnvDTE.Properties props = env.get_Properties("JsReport", "General");
+            EnvDTE.Properties props = _dte.get_Properties("JsReport", "General");
             
             return (string)props.Item("ReportingServiceUrl").Value;         
+        }
+
+        public static void OpenHelpers()
+        {
+            var item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.js")); ;
+            var window = item.Open(EnvDTE.Constants.vsViewKindPrimary);
+            window.Activate();
+        }
+
+        public static void OpenHtml()
+        {
+            var item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.html")); ;
+            var window = item.Open(EnvDTE.Constants.vsViewKindPrimary);
+            window.Activate();
         }
       
         //public static void Foo()

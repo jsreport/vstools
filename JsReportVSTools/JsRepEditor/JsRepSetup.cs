@@ -136,14 +136,13 @@ namespace JsReportVSTools
                     Options = new RenderOptions() { Async = false, Type = tbReceipe.Text  }
                 }).Result;
 
-                var reader = new StreamReader(r.Content);
-
-                var str = reader.ReadToEnd();
-
                 var tempFile = Path.GetTempFileName();
                 tempFile = Path.ChangeExtension(tempFile, r.FileExtension);
 
-                File.WriteAllText(tempFile, str);
+                using (var fileStream = File.Create(tempFile))
+                {
+                    r.Content.CopyTo(fileStream);
+                }               
 
                 Process.Start(tempFile);
             }
@@ -171,6 +170,16 @@ namespace JsReportVSTools
         private object ReadSchema()
         {
             return JObject.Parse(File.ReadAllText(_state.SchemaPath));
+        }
+
+        private void btnHelpers_Click(object sender, EventArgs e)
+        {
+            SetupHelpers.OpenHelpers();
+        }
+
+        private void btnHtml_Click(object sender, EventArgs e)
+        {
+            SetupHelpers.OpenHtml();
         }        
     }
 

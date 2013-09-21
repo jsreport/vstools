@@ -1,17 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20623.1 VSUPREVIEW
+VisualStudioVersion = 12.0.20827.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wizard", "Wizard\Wizard.csproj", "{2700070C-FD63-48E8-8305-1629DE237948}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsTools", "VsTools\VsTools.csproj", "{8B7F28E3-F595-483C-A747-7A08056BB054}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportItemTemplate", "ReportItemTemplate\ReportItemTemplate.csproj", "{2D549043-0B56-42F8-AFC9-8D622E41242A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorTools", "EditorTools\EditorTools.csproj", "{993D070D-A373-4FAF-A082-27015E8785FA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSPackage2", "VSPackage2\VSPackage2.csproj", "{72ECD080-640E-4E17-A06B-A5D21D01E9F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsReportVSTools", "JsReportVSTools\JsReportVSTools.csproj", "{C988C0BC-A0DE-4999-A717-7F275D03CD1D}"
 EndProject
@@ -31,20 +27,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2700070C-FD63-48E8-8305-1629DE237948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2700070C-FD63-48E8-8305-1629DE237948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2700070C-FD63-48E8-8305-1629DE237948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2700070C-FD63-48E8-8305-1629DE237948}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B7F28E3-F595-483C-A747-7A08056BB054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B7F28E3-F595-483C-A747-7A08056BB054}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B7F28E3-F595-483C-A747-7A08056BB054}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{993D070D-A373-4FAF-A082-27015E8785FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{993D070D-A373-4FAF-A082-27015E8785FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{993D070D-A373-4FAF-A082-27015E8785FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72ECD080-640E-4E17-A06B-A5D21D01E9F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72ECD080-640E-4E17-A06B-A5D21D01E9F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72ECD080-640E-4E17-A06B-A5D21D01E9F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU

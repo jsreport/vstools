@@ -31,6 +31,8 @@
             this.btnOpenSchemaDialog = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnHelpers = new System.Windows.Forms.Button();
+            this.tbReceipe = new System.Windows.Forms.TextBox();
             this.cbEngine = new System.Windows.Forms.ComboBox();
             this.btnPreview = new System.Windows.Forms.Button();
             this.tbTimeout = new System.Windows.Forms.TextBox();
@@ -38,7 +40,7 @@
             this.lblSchemaFilePath = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.schemaDialog = new System.Windows.Forms.OpenFileDialog();
-            this.tbReceipe = new System.Windows.Forms.TextBox();
+            this.btnHtml = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +67,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnHtml);
+            this.panel1.Controls.Add(this.btnHelpers);
             this.panel1.Controls.Add(this.tbReceipe);
             this.panel1.Controls.Add(this.cbEngine);
             this.panel1.Controls.Add(this.btnPreview);
@@ -78,6 +82,24 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(617, 395);
             this.panel1.TabIndex = 5;
+            // 
+            // btnHelpers
+            // 
+            this.btnHelpers.Location = new System.Drawing.Point(47, 289);
+            this.btnHelpers.Name = "btnHelpers";
+            this.btnHelpers.Size = new System.Drawing.Size(125, 23);
+            this.btnHelpers.TabIndex = 13;
+            this.btnHelpers.Text = "Go to helpers";
+            this.btnHelpers.UseVisualStyleBackColor = true;
+            this.btnHelpers.Click += new System.EventHandler(this.btnHelpers_Click);
+            // 
+            // tbReceipe
+            // 
+            this.tbReceipe.Location = new System.Drawing.Point(162, 223);
+            this.tbReceipe.Name = "tbReceipe";
+            this.tbReceipe.Size = new System.Drawing.Size(100, 22);
+            this.tbReceipe.TabIndex = 12;
+            this.tbReceipe.Text = "Html";
             // 
             // cbEngine
             // 
@@ -136,13 +158,15 @@
             this.label2.TabIndex = 5;
             this.label2.Text = "Chose json file with schema";
             // 
-            // tbReceipe
+            // btnHtml
             // 
-            this.tbReceipe.Location = new System.Drawing.Point(162, 223);
-            this.tbReceipe.Name = "tbReceipe";
-            this.tbReceipe.Size = new System.Drawing.Size(100, 22);
-            this.tbReceipe.TabIndex = 12;
-            this.tbReceipe.Text = "Html";
+            this.btnHtml.Location = new System.Drawing.Point(180, 289);
+            this.btnHtml.Name = "btnHtml";
+            this.btnHtml.Size = new System.Drawing.Size(125, 23);
+            this.btnHtml.TabIndex = 14;
+            this.btnHtml.Text = "Go to html";
+            this.btnHtml.UseVisualStyleBackColor = true;
+            this.btnHtml.Click += new System.EventHandler(this.btnHtml_Click);
             // 
             // JsRepSetup
             // 
@@ -172,6 +196,8 @@
         private System.Windows.Forms.Button btnPreview;
         private System.Windows.Forms.ComboBox cbEngine;
         private System.Windows.Forms.TextBox tbReceipe;
+        private System.Windows.Forms.Button btnHelpers;
+        private System.Windows.Forms.Button btnHtml;
 
 
     }
