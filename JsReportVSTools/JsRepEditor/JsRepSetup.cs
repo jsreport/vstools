@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using JsReportVSTools.JsRepEditor;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace JsReportVSTools
 {
@@ -26,25 +27,36 @@ namespace JsReportVSTools
         {
             InitializeComponent();
 
-            cbEngine.Items.Add(new { Text = "handlebars", Value = "handlebars" });
-            cbEngine.Items.Add(new { Text = "jsrender", Value = "jsrender" });
-
             cbEngine.ValueMember = "Value";
             cbEngine.DisplayMember = "Text";
+
+            foreach (string r in GetEnginesAsync().GetAwaiter().GetResult())
+            {
+                cbEngine.Items.Add(new { Text = r, Value = r });
+            }
+
+            cbRecipe.ValueMember = "Value";
+            cbRecipe.DisplayMember = "Text";
+           
+            foreach (string r in GetRecipesAsync().GetAwaiter().GetResult())
+            {
+                cbRecipe.Items.Add(new { Text = r, Value = r });
+            }          
         }            
 
         public void LoadFile(string fileName)
         {
             _fileName = fileName;
 
-            try {
+            try
+            {
                 var s = new XmlSerializer(typeof(ReportDefinition));
                 _state = s.Deserialize(new StreamReader(fileName)) as ReportDefinition;
-            
-                RefreshView();
             }
-            catch(Exception e) {
+            catch (Exception e)
+            {
             }
+            RefreshView();         
         }
 
         public void SaveFile(string fileName)
@@ -70,7 +82,7 @@ namespace JsReportVSTools
         private void RefreshView()
         {
             tbTimeout.Text = _state.Timeout;
-            cbEngine.Text = _state.TemplatingEngine;
+            cbEngine.Text = _state.Engine;
 
             if (string.IsNullOrEmpty(_state.SchemaPath)) {
                 lblSchemaFilePath.Hide();
@@ -94,7 +106,7 @@ namespace JsReportVSTools
             if (string.IsNullOrEmpty(schemaDialog.FileName))
                 return;            
 
-            _state.SchemaPath = schemaDialog.FileName;
+            _state.SchemaPath = SetupHelpers.GetSolutionFileFullName(schemaDialog.FileName);
             RefreshView();
             NotifyChange();
         }
@@ -104,7 +116,7 @@ namespace JsReportVSTools
             if (cbEngine.Text == null)
                 return;
 
-            _state.TemplatingEngine = cbEngine.Text;
+            _state.Engine = cbEngine.Text;
 
             NotifyChange();
         }
@@ -118,37 +130,31 @@ namespace JsReportVSTools
         }
         
         private void btnPreview_Click(object sender, EventArgs ea)
-        {
-            try
-            {
-                var url = SetupHelpers.GetReportingServiceUrl();
-                var service = new ReportingService(url);
+        {     
+           var url = SetupHelpers.GetReportingServiceUrl();
+           var service = new ReportingService(url);
 
-                var r = service.RenderPreviewAsync(new RenderRequest()
-                {
-                    Data = ReadSchema(),
-                    Template = new Template()
-                    {
-                        Html = ReadHtml(),
-                        Helpers = ReadHelpers(),
-                        RenderingEngine = _state.TemplatingEngine
-                    },
-                    Options = new RenderOptions() { Async = false, Type = tbReceipe.Text  }
-                }).Result;
+           var r = service.RenderPreviewAsync(new RenderRequest()
+           {
+               Data = ReadSchema(),
+               Template = new Template()
+               {
+                   Html = ReadHtml(),
+                   Helpers = ReadHelpers(),
+                   Engine = _state.Engine
+               },
+               Options = new RenderOptions() { Async = false, Recipe = cbRecipe.Text}
+           }).Result;
 
-                var tempFile = Path.GetTempFileName();
-                tempFile = Path.ChangeExtension(tempFile, r.FileExtension);
+           var tempFile = Path.GetTempFileName();
+           tempFile = Path.ChangeExtension(tempFile, r.FileExtension);
 
-                using (var fileStream = File.Create(tempFile))
-                {
-                    r.Content.CopyTo(fileStream);
-                }               
+           using (var fileStream = File.Create(tempFile))
+           {
+               r.Content.CopyTo(fileStream);
+           }               
 
-                Process.Start(tempFile);
-            }
-            catch (Exception e)
-            {
-            }
+           Process.Start(tempFile);
         }
 
         private string ReadHtml()
@@ -169,7 +175,7 @@ namespace JsReportVSTools
         
         private object ReadSchema()
         {
-            return JObject.Parse(File.ReadAllText(_state.SchemaPath));
+            return JObject.Parse(SetupHelpers.ReadFile(_state.SchemaPath));
         }
 
         private void btnHelpers_Click(object sender, EventArgs e)
@@ -180,13 +186,29 @@ namespace JsReportVSTools
         private void btnHtml_Click(object sender, EventArgs e)
         {
             SetupHelpers.OpenHtml();
-        }        
+        }
+
+        private async Task<IEnumerable<string>> GetRecipesAsync()
+        {
+            var url = SetupHelpers.GetReportingServiceUrl();
+            var service = new ReportingService(url);
+
+            return await service.GetRecipesAsync().ConfigureAwait(false);
+        }
+
+        private async Task<IEnumerable<string>> GetEnginesAsync()
+        {
+            var url = SetupHelpers.GetReportingServiceUrl();
+            var service = new ReportingService(url);
+
+            return await service.GetEnginesAsync().ConfigureAwait(false);
+        }
     }
 
     public class ReportDefinition
-    {
+    {        
         public string Timeout { get; set; }
         public string SchemaPath { get; set; }
-        public string TemplatingEngine { get; set; }
+        public string Engine { get; set; }
     }
 }

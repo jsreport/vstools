@@ -78,14 +78,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReportItemTemplate.ico" />
-    <None Include="Report.jsrep" />
+    <None Include="Report.jsrep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <VSTemplate Include="ReportItemTemplate.vstemplate" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Report.jsrep.html" />
-    <Content Include="Report.jsrep.js" />
+    <Content Include="Report.jsrep.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Report.jsrep.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

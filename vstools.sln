@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wizard", "Wizard\Wizard.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportItemTemplate", "ReportItemTemplate\ReportItemTemplate.csproj", "{2D549043-0B56-42F8-AFC9-8D622E41242A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorTools", "EditorTools\EditorTools.csproj", "{993D070D-A373-4FAF-A082-27015E8785FA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsReportVSTools", "JsReportVSTools\JsReportVSTools.csproj", "{C988C0BC-A0DE-4999-A717-7F275D03CD1D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jsreport.Client", "..\net\jsreport.Client\jsreport.Client.csproj", "{CE6736E3-FFBD-4609-9F1E-A1D3B646879E}"
@@ -34,9 +32,6 @@ Global
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D549043-0B56-42F8-AFC9-8D622E41242A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{993D070D-A373-4FAF-A082-27015E8785FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{993D070D-A373-4FAF-A082-27015E8785FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{993D070D-A373-4FAF-A082-27015E8785FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C988C0BC-A0DE-4999-A717-7F275D03CD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU

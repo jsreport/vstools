@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TemplateWizard;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.TemplateWizard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,7 @@ namespace Wizard
                     break;
             }
 
+            projectItem.Properties.Item("CopyToOutputDirectory").Value = 1;         
         }
 
         public void RunFinished()
