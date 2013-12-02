@@ -425,7 +425,7 @@ namespace JsReportVSTools
                     str.Close();
                 }
 
-                editorControl.LoadFile(pszFilename);
+                editorControl.LoadStateFromFile(pszFilename);
                 
 
                 isDirty = false;
@@ -512,7 +512,7 @@ namespace JsReportVSTools
 
             try
             {
-                editorControl.SaveFile(pszFilename);
+                editorControl.SaveStateToFile(pszFilename);
             }
             catch (ArgumentException)
             {
@@ -963,7 +963,7 @@ namespace JsReportVSTools
         {
             try
             {
-                editorControl.SaveFile(pszBackupFileName);
+                editorControl.SaveStateToFile(pszBackupFileName);
                 backupObsolete = false;
             }
             catch (ArgumentException)
