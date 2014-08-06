@@ -31,9 +31,29 @@
             this.btnOpenSchemaDialog = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.pnlPreview = new System.Windows.Forms.Panel();
-            this.lblPreview = new System.Windows.Forms.Label();
-            this.pbPreview = new System.Windows.Forms.PictureBox();
+            this.pnlPhantom = new System.Windows.Forms.Panel();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.rbHeader = new System.Windows.Forms.RichTextBox();
+            this.rbFooter = new System.Windows.Forms.RichTextBox();
+            this.tbHeaderHeight = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.tbFooterHeight = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.cbPaperOrientation = new System.Windows.Forms.ComboBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.cbFormat = new System.Windows.Forms.ComboBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tbPaperHeight = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.tbPaperWidth = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.tbMargin = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lnkServerUrl = new System.Windows.Forms.LinkLabel();
+            this.lnkServerLocation = new System.Windows.Forms.LinkLabel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.lnkHtml = new System.Windows.Forms.LinkLabel();
             this.lnkHelpers = new System.Windows.Forms.LinkLabel();
@@ -41,22 +61,20 @@
             this.label4 = new System.Windows.Forms.Label();
             this.cbRecipe = new System.Windows.Forms.ComboBox();
             this.cbEngine = new System.Windows.Forms.ComboBox();
-            this.tbTimeout = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.lblSchemaFilePath = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.schemaDialog = new System.Windows.Forms.OpenFileDialog();
             this.panel1.SuspendLayout();
-            this.pnlPreview.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbPreview)).BeginInit();
+            this.pnlPhantom.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOpenSchemaDialog
             // 
             this.btnOpenSchemaDialog.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnOpenSchemaDialog.Location = new System.Drawing.Point(250, 225);
+            this.btnOpenSchemaDialog.Location = new System.Drawing.Point(189, 167);
+            this.btnOpenSchemaDialog.Margin = new System.Windows.Forms.Padding(2);
             this.btnOpenSchemaDialog.Name = "btnOpenSchemaDialog";
-            this.btnOpenSchemaDialog.Size = new System.Drawing.Size(42, 26);
+            this.btnOpenSchemaDialog.Size = new System.Drawing.Size(32, 20);
             this.btnOpenSchemaDialog.TabIndex = 1;
             this.btnOpenSchemaDialog.Text = "....";
             this.btnOpenSchemaDialog.UseVisualStyleBackColor = true;
@@ -66,15 +84,20 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(30, 179);
+            this.label1.Location = new System.Drawing.Point(22, 135);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(196, 17);
+            this.label1.Size = new System.Drawing.Size(148, 13);
             this.label1.TabIndex = 4;
             this.label1.Text = "JavaScript Templating Engine";
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.pnlPreview);
+            this.panel1.Controls.Add(this.pnlPhantom);
+            this.panel1.Controls.Add(this.lnkServerUrl);
+            this.panel1.Controls.Add(this.lnkServerLocation);
+            this.panel1.Controls.Add(this.label8);
+            this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.lnkHtml);
             this.panel1.Controls.Add(this.lnkHelpers);
@@ -82,138 +105,349 @@
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.cbRecipe);
             this.panel1.Controls.Add(this.cbEngine);
-            this.panel1.Controls.Add(this.tbTimeout);
-            this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.lblSchemaFilePath);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.btnOpenSchemaDialog);
-            this.panel1.Location = new System.Drawing.Point(20, 17);
+            this.panel1.Location = new System.Drawing.Point(15, 14);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(617, 395);
+            this.panel1.Size = new System.Drawing.Size(697, 643);
             this.panel1.TabIndex = 5;
             // 
-            // pnlPreview
+            // pnlPhantom
             // 
-            this.pnlPreview.Controls.Add(this.lblPreview);
-            this.pnlPreview.Controls.Add(this.pbPreview);
-            this.pnlPreview.Location = new System.Drawing.Point(19, 14);
-            this.pnlPreview.Name = "pnlPreview";
-            this.pnlPreview.Size = new System.Drawing.Size(100, 32);
-            this.pnlPreview.TabIndex = 23;
-            this.pnlPreview.Click += new System.EventHandler(this.pnlPreview_Click);
-            this.pnlPreview.MouseEnter += new System.EventHandler(this.pnlPreview_MouseEnter);
-            this.pnlPreview.MouseLeave += new System.EventHandler(this.pnlPreview_MouseLeave);
+            this.pnlPhantom.Controls.Add(this.label16);
+            this.pnlPhantom.Controls.Add(this.label15);
+            this.pnlPhantom.Controls.Add(this.rbHeader);
+            this.pnlPhantom.Controls.Add(this.rbFooter);
+            this.pnlPhantom.Controls.Add(this.tbHeaderHeight);
+            this.pnlPhantom.Controls.Add(this.label14);
+            this.pnlPhantom.Controls.Add(this.tbFooterHeight);
+            this.pnlPhantom.Controls.Add(this.label13);
+            this.pnlPhantom.Controls.Add(this.cbPaperOrientation);
+            this.pnlPhantom.Controls.Add(this.label12);
+            this.pnlPhantom.Controls.Add(this.cbFormat);
+            this.pnlPhantom.Controls.Add(this.label11);
+            this.pnlPhantom.Controls.Add(this.tbPaperHeight);
+            this.pnlPhantom.Controls.Add(this.label10);
+            this.pnlPhantom.Controls.Add(this.tbPaperWidth);
+            this.pnlPhantom.Controls.Add(this.label9);
+            this.pnlPhantom.Controls.Add(this.tbMargin);
+            this.pnlPhantom.Controls.Add(this.label3);
+            this.pnlPhantom.Location = new System.Drawing.Point(26, 236);
+            this.pnlPhantom.Name = "pnlPhantom";
+            this.pnlPhantom.Size = new System.Drawing.Size(599, 292);
+            this.pnlPhantom.TabIndex = 28;
             // 
-            // lblPreview
+            // label16
             // 
-            this.lblPreview.AutoSize = true;
-            this.lblPreview.Location = new System.Drawing.Point(40, 7);
-            this.lblPreview.Name = "lblPreview";
-            this.lblPreview.Size = new System.Drawing.Size(57, 17);
-            this.lblPreview.TabIndex = 22;
-            this.lblPreview.Text = "Preview";
-            this.lblPreview.Click += new System.EventHandler(this.lblPreview_Click);
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label16.Location = new System.Drawing.Point(29, 141);
+            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(42, 13);
+            this.label16.TabIndex = 42;
+            this.label16.Text = "Header";
             // 
-            // pbPreview
+            // label15
             // 
-            this.pbPreview.Location = new System.Drawing.Point(6, 2);
-            this.pbPreview.Name = "pbPreview";
-            this.pbPreview.Size = new System.Drawing.Size(28, 28);
-            this.pbPreview.TabIndex = 21;
-            this.pbPreview.TabStop = false;
-            this.pbPreview.Click += new System.EventHandler(this.pbPreview_Click);
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label15.Location = new System.Drawing.Point(323, 141);
+            this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(37, 13);
+            this.label15.TabIndex = 41;
+            this.label15.Text = "Footer";
+            // 
+            // rbHeader
+            // 
+            this.rbHeader.Location = new System.Drawing.Point(17, 169);
+            this.rbHeader.Name = "rbHeader";
+            this.rbHeader.Size = new System.Drawing.Size(207, 104);
+            this.rbHeader.TabIndex = 40;
+            this.rbHeader.Text = "";
+            this.rbHeader.TextChanged += new System.EventHandler(this.rbHeader_TextChanged);
+            // 
+            // rbFooter
+            // 
+            this.rbFooter.Location = new System.Drawing.Point(325, 169);
+            this.rbFooter.Name = "rbFooter";
+            this.rbFooter.Size = new System.Drawing.Size(211, 104);
+            this.rbFooter.TabIndex = 39;
+            this.rbFooter.Text = "";
+            this.rbFooter.TextChanged += new System.EventHandler(this.rbFooter_TextChanged);
+            // 
+            // tbHeaderHeight
+            // 
+            this.tbHeaderHeight.Location = new System.Drawing.Point(336, 100);
+            this.tbHeaderHeight.Name = "tbHeaderHeight";
+            this.tbHeaderHeight.Size = new System.Drawing.Size(100, 20);
+            this.tbHeaderHeight.TabIndex = 38;
+            this.tbHeaderHeight.TextChanged += new System.EventHandler(this.tbHeaderHeight_TextChanged);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label14.Location = new System.Drawing.Point(261, 103);
+            this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(76, 13);
+            this.label14.TabIndex = 37;
+            this.label14.Text = "Header Height";
+            // 
+            // tbFooterHeight
+            // 
+            this.tbFooterHeight.Location = new System.Drawing.Point(89, 100);
+            this.tbFooterHeight.Name = "tbFooterHeight";
+            this.tbFooterHeight.Size = new System.Drawing.Size(100, 20);
+            this.tbFooterHeight.TabIndex = 36;
+            this.tbFooterHeight.TextChanged += new System.EventHandler(this.tbFooterHeight_TextChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label13.Location = new System.Drawing.Point(14, 103);
+            this.label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(71, 13);
+            this.label13.TabIndex = 35;
+            this.label13.Text = "Footer Height";
+            // 
+            // cbPaperOrientation
+            // 
+            this.cbPaperOrientation.FormattingEnabled = true;
+            this.cbPaperOrientation.Items.AddRange(new object[] {
+            "portrait",
+            "landscape"});
+            this.cbPaperOrientation.Location = new System.Drawing.Point(362, 51);
+            this.cbPaperOrientation.Name = "cbPaperOrientation";
+            this.cbPaperOrientation.Size = new System.Drawing.Size(121, 21);
+            this.cbPaperOrientation.TabIndex = 34;
+            this.cbPaperOrientation.SelectedIndexChanged += new System.EventHandler(this.cbPaperOrientation_SelectedIndexChanged);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label12.Location = new System.Drawing.Point(276, 54);
+            this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(87, 13);
+            this.label12.TabIndex = 33;
+            this.label12.Text = "Paper orientation";
+            // 
+            // cbFormat
+            // 
+            this.cbFormat.FormattingEnabled = true;
+            this.cbFormat.Items.AddRange(new object[] {
+            "A4",
+            "A3",
+            "A5",
+            "Legal",
+            "Letter",
+            "Tabloid"});
+            this.cbFormat.Location = new System.Drawing.Point(440, 18);
+            this.cbFormat.Name = "cbFormat";
+            this.cbFormat.Size = new System.Drawing.Size(121, 21);
+            this.cbFormat.TabIndex = 32;
+            this.cbFormat.SelectedIndexChanged += new System.EventHandler(this.cbFormat_SelectedIndexChanged);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label11.Location = new System.Drawing.Point(368, 21);
+            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(67, 13);
+            this.label11.TabIndex = 31;
+            this.label11.Text = "Paper format";
+            // 
+            // tbPaperHeight
+            // 
+            this.tbPaperHeight.Location = new System.Drawing.Point(163, 52);
+            this.tbPaperHeight.Name = "tbPaperHeight";
+            this.tbPaperHeight.Size = new System.Drawing.Size(100, 20);
+            this.tbPaperHeight.TabIndex = 30;
+            this.tbPaperHeight.TextChanged += new System.EventHandler(this.tbPaperHeight_TextChanged);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label10.Location = new System.Drawing.Point(95, 55);
+            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(67, 13);
+            this.label10.TabIndex = 29;
+            this.label10.Text = "Paper height";
+            // 
+            // tbPaperWidth
+            // 
+            this.tbPaperWidth.Location = new System.Drawing.Point(248, 18);
+            this.tbPaperWidth.Name = "tbPaperWidth";
+            this.tbPaperWidth.Size = new System.Drawing.Size(100, 20);
+            this.tbPaperWidth.TabIndex = 28;
+            this.tbPaperWidth.TextChanged += new System.EventHandler(this.tbPaperWidth_TextChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label9.Location = new System.Drawing.Point(180, 21);
+            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(63, 13);
+            this.label9.TabIndex = 27;
+            this.label9.Text = "Paper width";
+            // 
+            // tbMargin
+            // 
+            this.tbMargin.Location = new System.Drawing.Point(58, 18);
+            this.tbMargin.Name = "tbMargin";
+            this.tbMargin.Size = new System.Drawing.Size(100, 20);
+            this.tbMargin.TabIndex = 26;
+            this.tbMargin.TextChanged += new System.EventHandler(this.tbMargin_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label3.Location = new System.Drawing.Point(14, 21);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(39, 13);
+            this.label3.TabIndex = 25;
+            this.label3.Text = "Margin";
+            // 
+            // lnkServerUrl
+            // 
+            this.lnkServerUrl.AutoSize = true;
+            this.lnkServerUrl.Location = new System.Drawing.Point(348, 133);
+            this.lnkServerUrl.Name = "lnkServerUrl";
+            this.lnkServerUrl.Size = new System.Drawing.Size(103, 13);
+            this.lnkServerUrl.TabIndex = 27;
+            this.lnkServerUrl.TabStop = true;
+            this.lnkServerUrl.Text = "embedded server url";
+            // 
+            // lnkServerLocation
+            // 
+            this.lnkServerLocation.AutoSize = true;
+            this.lnkServerLocation.Location = new System.Drawing.Point(348, 110);
+            this.lnkServerLocation.Name = "lnkServerLocation";
+            this.lnkServerLocation.Size = new System.Drawing.Size(129, 13);
+            this.lnkServerLocation.TabIndex = 26;
+            this.lnkServerLocation.TabStop = true;
+            this.lnkServerLocation.Text = "embedded server location";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label8.Location = new System.Drawing.Point(22, 21);
+            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(193, 20);
+            this.label8.TabIndex = 25;
+            this.label8.Text = "Hit F5 to preview template";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label7.Location = new System.Drawing.Point(22, 203);
+            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(41, 13);
+            this.label7.TabIndex = 24;
+            this.label7.Text = "Recipe";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label6.Location = new System.Drawing.Point(28, 136);
+            this.label6.Location = new System.Drawing.Point(21, 110);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(175, 17);
+            this.label6.Size = new System.Drawing.Size(137, 13);
             this.label6.TabIndex = 20;
             this.label6.Text = "Template configuration";
             // 
             // lnkHtml
             // 
             this.lnkHtml.AutoSize = true;
-            this.lnkHtml.Location = new System.Drawing.Point(130, 86);
+            this.lnkHtml.Location = new System.Drawing.Point(22, 71);
+            this.lnkHtml.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lnkHtml.Name = "lnkHtml";
-            this.lnkHtml.Size = new System.Drawing.Size(73, 17);
+            this.lnkHtml.Size = new System.Drawing.Size(90, 13);
             this.lnkHtml.TabIndex = 19;
             this.lnkHtml.TabStop = true;
-            this.lnkHtml.Text = "Go to html";
+            this.lnkHtml.Text = "Go report content";
             this.lnkHtml.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHtml_LinkClicked);
             // 
             // lnkHelpers
             // 
             this.lnkHelpers.AutoSize = true;
-            this.lnkHelpers.Location = new System.Drawing.Point(30, 86);
+            this.lnkHelpers.Location = new System.Drawing.Point(116, 71);
+            this.lnkHelpers.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lnkHelpers.Name = "lnkHelpers";
-            this.lnkHelpers.Size = new System.Drawing.Size(94, 17);
+            this.lnkHelpers.Size = new System.Drawing.Size(100, 13);
             this.lnkHelpers.TabIndex = 18;
             this.lnkHelpers.TabStop = true;
-            this.lnkHelpers.Text = "Go to helpers";
+            this.lnkHelpers.Text = "Go to report helpers";
             this.lnkHelpers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelpers_LinkClicked);
             // 
             // label5
             // 
             this.label5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label5.Location = new System.Drawing.Point(3, 120);
+            this.label5.Location = new System.Drawing.Point(2, 98);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(560, 2);
+            this.label5.Size = new System.Drawing.Size(420, 2);
             this.label5.TabIndex = 17;
             // 
             // label4
             // 
             this.label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label4.Location = new System.Drawing.Point(3, 61);
+            this.label4.Location = new System.Drawing.Point(2, 50);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(559, 2);
+            this.label4.Size = new System.Drawing.Size(419, 2);
             this.label4.TabIndex = 16;
             // 
             // cbRecipe
             // 
             this.cbRecipe.FormattingEnabled = true;
-            this.cbRecipe.Location = new System.Drawing.Point(125, 18);
+            this.cbRecipe.Location = new System.Drawing.Point(64, 200);
+            this.cbRecipe.Margin = new System.Windows.Forms.Padding(2);
             this.cbRecipe.Name = "cbRecipe";
-            this.cbRecipe.Size = new System.Drawing.Size(140, 24);
+            this.cbRecipe.Size = new System.Drawing.Size(106, 21);
             this.cbRecipe.TabIndex = 15;
+            this.cbRecipe.SelectedValueChanged += new System.EventHandler(this.cbRecipe_SelectedValueChanged);
             // 
             // cbEngine
             // 
             this.cbEngine.FormattingEnabled = true;
-            this.cbEngine.Location = new System.Drawing.Point(232, 176);
+            this.cbEngine.Location = new System.Drawing.Point(174, 133);
+            this.cbEngine.Margin = new System.Windows.Forms.Padding(2);
             this.cbEngine.Name = "cbEngine";
-            this.cbEngine.Size = new System.Drawing.Size(121, 24);
+            this.cbEngine.Size = new System.Drawing.Size(92, 21);
             this.cbEngine.TabIndex = 11;
             this.cbEngine.SelectedValueChanged += new System.EventHandler(this.cbEngine_SelectedValueChanged);
-            // 
-            // tbTimeout
-            // 
-            this.tbTimeout.Location = new System.Drawing.Point(133, 270);
-            this.tbTimeout.Name = "tbTimeout";
-            this.tbTimeout.Size = new System.Drawing.Size(100, 22);
-            this.tbTimeout.TabIndex = 8;
-            this.tbTimeout.TextChanged += new System.EventHandler(this.tbTimeout_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label3.Location = new System.Drawing.Point(30, 273);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(96, 17);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Timeout in ms";
             // 
             // lblSchemaFilePath
             // 
             this.lblSchemaFilePath.AutoSize = true;
             this.lblSchemaFilePath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lblSchemaFilePath.Location = new System.Drawing.Point(298, 230);
+            this.lblSchemaFilePath.Location = new System.Drawing.Point(225, 171);
+            this.lblSchemaFilePath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblSchemaFilePath.Name = "lblSchemaFilePath";
-            this.lblSchemaFilePath.Size = new System.Drawing.Size(85, 17);
+            this.lblSchemaFilePath.Size = new System.Drawing.Size(65, 13);
             this.lblSchemaFilePath.TabIndex = 6;
             this.lblSchemaFilePath.Text = "Schema File";
             // 
@@ -221,26 +455,24 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(30, 230);
+            this.label2.Location = new System.Drawing.Point(23, 171);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(214, 17);
+            this.label2.Size = new System.Drawing.Size(162, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Json file with schema for preview";
             // 
             // JsRepSetup
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "JsRepSetup";
-            this.Size = new System.Drawing.Size(656, 427);
-            this.Load += new System.EventHandler(this.JsRepSetup_Load);
+            this.Size = new System.Drawing.Size(714, 558);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.pnlPreview.ResumeLayout(false);
-            this.pnlPreview.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbPreview)).EndInit();
+            this.pnlPhantom.ResumeLayout(false);
+            this.pnlPhantom.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -253,8 +485,6 @@
         private System.Windows.Forms.Label lblSchemaFilePath;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.OpenFileDialog schemaDialog;
-        private System.Windows.Forms.TextBox tbTimeout;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cbEngine;
         private System.Windows.Forms.ComboBox cbRecipe;
         private System.Windows.Forms.Label label4;
@@ -262,9 +492,29 @@
         private System.Windows.Forms.LinkLabel lnkHelpers;
         private System.Windows.Forms.LinkLabel lnkHtml;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.PictureBox pbPreview;
-        private System.Windows.Forms.Label lblPreview;
-        private System.Windows.Forms.Panel pnlPreview;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.LinkLabel lnkServerUrl;
+        private System.Windows.Forms.LinkLabel lnkServerLocation;
+        private System.Windows.Forms.Panel pnlPhantom;
+        private System.Windows.Forms.TextBox tbPaperWidth;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox tbMargin;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox tbPaperHeight;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox cbPaperOrientation;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ComboBox cbFormat;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox tbFooterHeight;
+        private System.Windows.Forms.TextBox tbHeaderHeight;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.RichTextBox rbHeader;
+        private System.Windows.Forms.RichTextBox rbFooter;
 
 
     }

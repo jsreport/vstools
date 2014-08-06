@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using EnvDTE;
 using JsReportVSTools;
+using JsReportVSTools.JsRepEditor;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using JsReportVSTools.Options;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace JsReportVSTools
 {
@@ -37,7 +40,9 @@ namespace JsReportVSTools
     // This attribute declares that your EditorPane class implements IVsCodeWindow interface
     // used to navigate to find results from a "Find in Files" type of operation.
     [ProvideEditorLogicalView(typeof(JsRepEditorFactory), VSConstants.LOGVIEWID.TextView_string)]
+    [ProvideEditorLogicalView(typeof(JsRepEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
     [Guid(GuidList.guidJsReportVSToolsPkgString)]
+    [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
     public sealed class JsReportVSToolsPackage : Package
     {
         /// <summary>
@@ -52,11 +57,11 @@ namespace JsReportVSTools
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
         }
 
-
-
         /////////////////////////////////////////////////////////////////////////////
         // Overridden Package Implementation
         #region Package Members
+
+        private CommandEvents _debugCommandEvents;
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -70,7 +75,9 @@ namespace JsReportVSTools
             //Create Editor Factory. Note that the base Package class will call Dispose on it.
             base.RegisterEditorFactory(new JsRepEditorFactory(this));
 
+            SetupHelpers.InitializeListeners();
         }
+
         #endregion
 
     }

@@ -1,32 +1,158 @@
-﻿using EnvDTE;
-using JsReport;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Serialization;
+using EnvDTE;
+using EnvDTE80;
+using jsreport.Client;
+using JsReportVSTools.EmbeddedServer;
+using Microsoft.VisualStudio.Shell;
+using Newtonsoft.Json.Linq;
+using Task = System.Threading.Tasks.Task;
 
 namespace JsReportVSTools.JsRepEditor
 {
     public static class SetupHelpers
     {
-        private static DTE _dte;
+        private static DTE2 _dte;
+        private static IEnumerable<string> _cachedRecipes;
+        private static IEnumerable<string> _cachedEngines;
+        private static CommandEvents _debugCommandEvents;
+        public static EmbeddedServerManager EmbeddedServerManager { get; set; }
 
-        static SetupHelpers() {
-            _dte = JsReportVSToolsPackage.GetGlobalService(typeof(SDTE)) as DTE;
+        public static bool HasCachedEngines
+        {
+            get { return _cachedEngines != null; }
+        }
+
+        public static bool HasCachedRecipes
+        {
+            get { return _cachedRecipes != null; }
+        }
+
+        public static void InitializeListeners()
+        {
+            _dte = ServiceProvider.GlobalProvider.GetService(typeof (DTE)) as DTE2;
+
+            _debugCommandEvents = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 295];
+            _debugCommandEvents.BeforeExecute +=
+                (string guid, int id, object @in, object @out, ref bool @default) =>
+                {
+                    if (_dte.ActiveDocument != null && _dte.ActiveDocument.FullName.Contains(".jsrep"))
+                    {
+                        @default = true;
+                        DoPreviewActiveItem();
+                    }
+                };
+
+            EmbeddedServerManager = new EmbeddedServerManager(_dte);
+        }
+
+        public static string RemoveFromEnd(this string s, string suffix)
+        {
+            if (s.EndsWith(suffix))
+            {
+                return s.Substring(0, s.Length - suffix.Length);
+            }
+            return s;
+        }
+
+        private static async Task DoPreviewActiveItemInner(CommonMessagePump msgPump)
+        {
+            try
+            {
+                msgPump.TotalSteps = 5;
+                msgPump.CurrentStep = 1;
+                msgPump.ProgressText = "Preparing jsreport server";
+                msgPump.StatusBarText = msgPump.ProgressText;
+               
+                await EmbeddedServerManager.EnsureStartedAsync().ConfigureAwait(false);
+
+                msgPump.CurrentStep = 2;
+                msgPump.ProgressText = "Synchronizing templates";
+                msgPump.StatusBarText = msgPump.ProgressText;
+
+                _dte.ExecuteCommand("File.SaveAll");
+
+                _dte.Solution.SolutionBuild.BuildProject("Debug", EmbeddedServerManager.CurrentProjectName, true);
+
+                string definitionPath = _dte.ActiveDocument.FullName.RemoveFromEnd(".html").RemoveFromEnd(".js");
+
+                ReportDefinition rd = ReadReportDefinition(definitionPath);
+
+                await EmbeddedServerManager.SynchronizeTemplatesAsync().ConfigureAwait(false);
+
+                object data = null;
+
+                if (!string.IsNullOrEmpty(rd.SchemaPath))
+                {
+                    try
+                    {
+                        data = JObject.Parse(ReadFile(rd.SchemaPath));
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException("Unable to parse schema file.", e);
+                    }
+                }
+
+                msgPump.CurrentStep = 3;
+                msgPump.ProgressText = "Rendering template in jsreport";
+                msgPump.StatusBarText = msgPump.ProgressText;
+
+                Report report =
+                    await
+                        RenderPreviewAsync(
+                            Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(_dte.ActiveDocument.Name)),
+                            data);
+
+                msgPump.CurrentStep = 4;
+                msgPump.ProgressText = "Opening report";
+                msgPump.StatusBarText = msgPump.ProgressText;
+
+                string tempFile = Path.GetTempFileName();
+                tempFile = Path.ChangeExtension(tempFile, report.FileExtension);
+
+                using (FileStream fileStream = File.Create(tempFile))
+                {
+                    report.Content.CopyTo(fileStream);
+                }
+
+                OpenFileInBrowser(tempFile);
+            }
+            catch (JsReportException e)
+            {
+                MessageBox.Show(e.ResponseErrorMessage, "Error when processing template", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString(), "Error when processing template", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        public static void DoPreviewActiveItem()
+        {
+            var msgPump = new CommonMessagePump();
+            msgPump.AllowCancel = false;
+            msgPump.EnableRealProgress = true;
+            msgPump.WaitTitle = "Rendering report";
+            msgPump.WaitText = "This should NOT take several minutes. :)";
+
+            var task = DoPreviewActiveItemInner(msgPump);
+            msgPump.ModalWaitForHandles(((IAsyncResult)task).AsyncWaitHandle);
+
+            task.Wait();
         }
 
         public static IEnumerable<string> Foo()
         {
-            var rd = ReadReportDefinition(_dte.ActiveDocument.FullName.Replace("html", ""));
+            ReportDefinition rd = ReadReportDefinition(_dte.ActiveDocument.FullName.Replace("html", ""));
 
-            var json =  JObject.Parse(ReadFile(rd.SchemaPath));
+            JObject json = JObject.Parse(ReadFile(rd.SchemaPath));
 
             var result = new List<string>();
             ParseJsonAttributes("", json, result);
@@ -36,14 +162,14 @@ namespace JsReportVSTools.JsRepEditor
 
         private static void ParseJsonAttributes(string path, JObject obj, List<string> attrs)
         {
-            foreach (var property in  obj.Properties())
+            foreach (JProperty property in  obj.Properties())
             {
-                var current = path + "." + property.Name;
+                string current = path + "." + property.Name;
                 current = current.TrimStart('.');
                 attrs.Add(current);
 
                 if (property.Value.Type == JTokenType.Object)
-                    ParseJsonAttributes(current, (JObject)property.Value, attrs);
+                    ParseJsonAttributes(current, (JObject) property.Value, attrs);
             }
         }
 
@@ -51,7 +177,7 @@ namespace JsReportVSTools.JsRepEditor
         {
             try
             {
-                var s = new XmlSerializer(typeof(ReportDefinition));
+                var s = new XmlSerializer(typeof (ReportDefinition));
                 return s.Deserialize(new StreamReader(fileName)) as ReportDefinition;
             }
             catch (Exception e)
@@ -64,60 +190,58 @@ namespace JsReportVSTools.JsRepEditor
 
         public static string GetReportingServiceUrl()
         {
-            EnvDTE.Properties props = _dte.get_Properties("JsReport", "General");
-            
-            return (string)props.Item("ReportingServiceUrl").Value;         
+            return EmbeddedServerManager.EmbeddedServerUri;
         }
 
         public static void SetReportingServiceUrl(string url)
         {
-            EnvDTE.Properties props = _dte.get_Properties("JsReport", "General");
+            Properties props = _dte.get_Properties("JsReport", "General");
 
             props.Item("ReportingServiceUrl").Value = url;
         }
 
         public static void OpenHelpers()
         {
-            var item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.js"));
-            var window = item.Open(EnvDTE.Constants.vsViewKindPrimary);
+            ProjectItem item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.js"));
+            Window window = item.Open(Constants.vsViewKindPrimary);
             window.Activate();
         }
 
         public static void OpenHtml()
         {
-            var item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.html"));
-            var window = item.Open(EnvDTE.Constants.vsViewKindPrimary);
+            ProjectItem item =
+                _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.html"));
+            Window window = item.Open(Constants.vsViewKindPrimary);
             window.Activate();
+        }
+
+        public static void OpenFileInBrowser(string path)
+        {
+            _dte.ExecuteCommand("View.WebBrowser", "\"file:///" + path.Replace('\\', '/') + "\"");
         }
 
         public static string ReadFile(string pathInSolution)
         {
-            var rootDir = new FileInfo(_dte.Solution.FullName).Directory.FullName;
+            string rootDir = new FileInfo(_dte.Solution.FullName).Directory.FullName;
 
-            return File.ReadAllText(Path.Combine(rootDir, pathInSolution));           
+            return File.ReadAllText(Path.Combine(rootDir, pathInSolution));
         }
 
         public static string GetSolutionFileFullName(string fullPath)
         {
-            var rootDir = new FileInfo(_dte.Solution.FullName).Directory.FullName;
-            return fullPath.ToLower().Replace(rootDir.ToLower() + "\\", "");            
+            string rootDir = new FileInfo(_dte.Solution.FullName).Directory.FullName;
+            return fullPath.ToLower().Replace(rootDir.ToLower() + "\\", "");
         }
 
-        public static async Task<Report> RenderPreviewAsync(object data, string html, string helpers, string engine, string recipe)
+        public static async Task<Report> RenderPreviewAsync(string shortid, object data)
         {
+            EmbeddedServerManager.EnsureStartedAsync();
+
             var service = new ReportingService(GetReportingServiceUrl());
 
-            return await service.RenderPreviewAsync(new RenderRequest()
-            {
-                Data = data,
-                Template = new Template()
-                {
-                    Html = html,
-                    Helpers = helpers,
-                    Engine = engine
-                },
-                Options = new RenderOptions() { Async = false, Recipe = recipe }
-            });
+            Report result = await service.RenderAsync(shortid, data);
+
+            return result;
         }
 
         public static async Task<bool> ValidateServerUrlAsync(string url)
@@ -126,9 +250,9 @@ namespace JsReportVSTools.JsRepEditor
             {
                 var service = new ReportingService(url);
 
-                var version = await service.GetServerVersionAsync();
+                string version = await service.GetServerVersionAsync();
 
-                return double.Parse(version, CultureInfo.InvariantCulture) > 0;
+                return !string.IsNullOrEmpty(version);
             }
             catch (Exception e)
             {
@@ -136,18 +260,42 @@ namespace JsReportVSTools.JsRepEditor
             }
         }
 
-        public static async Task<IEnumerable<string>> GetRecipesAsync()
-        {          
-            var service = new ReportingService(GetReportingServiceUrl());
+        public static async Task<IEnumerable<string>> GetRecipesAsync(string fileName)
+        {
+            if (_cachedRecipes == null)
+            {
+                EmbeddedServerManager.EnsureStartedAsync(fileName);
 
-            return await service.GetRecipesAsync();
+                var service = new ReportingService(GetReportingServiceUrl());
+
+                _cachedRecipes = await service.GetRecipesAsync();
+            }
+
+            return _cachedRecipes;
         }
 
-        public static async Task<IEnumerable<string>> GetEngines()
+        public static async Task<IEnumerable<string>> GetEngines(string fileName)
         {
-            var service = new ReportingService(GetReportingServiceUrl());
+            if (_cachedEngines == null)
+            {
+                var msgPump = new CommonMessagePump();
+                msgPump.AllowCancel = false;
+                msgPump.WaitTitle = "Initializing jsreport for first use";
+                msgPump.WaitText = "This should NOT take several minutes. :)";
 
-            return await service.GetEnginesAsync();
+                var task = EmbeddedServerManager.EnsureStartedAsync(fileName);
+                msgPump.ModalWaitForHandles(((IAsyncResult)task).AsyncWaitHandle);
+
+                task.Wait();
+
+                var service = new ReportingService(GetReportingServiceUrl());
+
+                _cachedEngines = await service.GetEnginesAsync();
+                return _cachedEngines;
+            }
+
+
+            return _cachedEngines;
         }
 
         internal static Project GetActiveProject()
@@ -155,11 +303,11 @@ namespace JsReportVSTools.JsRepEditor
             return GetActiveProject(_dte);
         }
 
-        internal static Project GetActiveProject(DTE dte)
+        internal static Project GetActiveProject(DTE2 dte)
         {
             Project activeProject = null;
 
-            Array activeSolutionProjects = dte.ActiveSolutionProjects as Array;
+            var activeSolutionProjects = dte.ActiveSolutionProjects as Array;
             if (activeSolutionProjects != null && activeSolutionProjects.Length > 0)
             {
                 activeProject = activeSolutionProjects.GetValue(0) as Project;
