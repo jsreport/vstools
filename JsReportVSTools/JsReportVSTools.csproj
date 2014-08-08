@@ -189,18 +189,15 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmbeddedServer\EmbeddedServerManager.cs" />
+    <Compile Include="Impl\EmbeddedServerManager.cs" />
+    <Compile Include="Impl\MissingJsReportEmbeddedDllException.cs" />
+    <Compile Include="Impl\PhantomDefinition.cs" />
+    <Compile Include="Impl\ReportDefinition.cs" />
     <Compile Include="Intellisense\CompletionSource.cs" />
     <Compile Include="Intellisense\CompletionSourceProvider.cs" />
     <Compile Include="Intellisense\HtmlCompletionProvider.cs" />
     <Compile Include="Intellisense\MyCompletionFactory.cs" />
     <Compile Include="Intellisense\SimpleHtmlCompletion.cs" />
-    <Compile Include="JsRepEditor\FirstTimeConfigDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="JsRepEditor\FirstTimeConfigDialog.Designer.cs">
-      <DependentUpon>FirstTimeConfigDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="JsRepEditor\JsRepEditorFactory.cs" />
     <Compile Include="JsRepEditor\JsRepEditorPane.cs" />
     <Compile Include="JsRepEditor\JsRepSetup.cs">
@@ -209,7 +206,7 @@
     <Compile Include="JsRepEditor\JsRepSetup.designer.cs">
       <DependentUpon>JsRepSetup.cs</DependentUpon>
     </Compile>
-    <Compile Include="JsRepEditor\SetupHelpers.cs" />
+    <Compile Include="Impl\SetupHelpers.cs" />
     <Compile Include="NativeMethods.cs" />
     <Content Include="JsRepEditor\Templates\Report.jsrep">
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -235,16 +232,9 @@
     <None Include="Resources\preview.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="JsRepEditor\FirstTimeConfigDialog.resx">
-      <DependentUpon>FirstTimeConfigDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="JsRepEditor\JsRepEditorPane.resx">
       <DependentUpon>JsRepEditorPane.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="JsRepEditor\JsRepSetup.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>JsRepSetup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -272,10 +262,6 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\net\jsreport\jsreport.Client\jsreport.Client.csproj">
-      <Project>{fae7d435-2660-4745-97b6-438fbfb22905}</Project>
-      <Name>jsreport.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ReportItemTemplate\ReportItemTemplate.csproj">
       <Project>{2D549043-0B56-42F8-AFC9-8D622E41242A}</Project>
       <Name>ReportItemTemplate</Name>
@@ -303,6 +289,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\File.ico" />
+    <Resource Include="Resources\header.png" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup />

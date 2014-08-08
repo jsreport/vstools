@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using JsReportVSTools.JsRepEditor;
+using JsReportVSTools.Impl;
 
 namespace JsReportVSTools
 {
     public partial class JsRepSetup : UserControl
     {
-        private string _fileName;
         private ReportDefinition _state = new ReportDefinition();
 
         public JsRepSetup()
@@ -23,33 +23,36 @@ namespace JsReportVSTools
             cbRecipe.ValueMember = "Value";
             cbRecipe.DisplayMember = "Text";
 
-            //if (string.IsNullOrEmpty(SetupHelpers.GetReportingServiceUrl()))
-            //{
-            //    var dialog = new FirstTimeConfigDialog();
-            //    dialog.FormClosed += JsRepSetup_Load;
-            //    dialog.ShowDialog(this);               
-            //}
+            cbSchema.ValueMember = "Value";
+            cbSchema.DisplayMember = "Text";
         }
 
+       
         public bool ReadOnly { get; set; }
 
         public async void LoadStateFromFile(string fileName)
         {
-            _fileName = fileName;
-
             _state = SetupHelpers.ReadReportDefinition(fileName);
-
+            
             try
             {
                 await FillEngines(fileName);
                 await FillRecipes(fileName);
+
+                SetupHelpers.GetSchemas().ToList().ForEach(s => cbSchema.Items.Add(new { Text = s, Value = s }));
+
+                RefreshView();
+            }
+            catch (MissingJsReportEmbeddedDllException e)
+            {
+                MessageBox.Show(e.Message, "jsreport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Task.Delay(1000).ContinueWith((t) => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
             }
             catch (Exception exception)
             {
                 MessageBox.Show(exception.ToString(), "Error");
+                Task.Delay(1000).ContinueWith((t) => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
             }
-
-            RefreshView();
         }
 
         public void SaveStateToFile(string fileName)
@@ -69,16 +72,7 @@ namespace JsReportVSTools
         {
             cbEngine.Text = _state.Engine;
             cbRecipe.Text = _state.Recipe;
-
-            if (string.IsNullOrEmpty(_state.SchemaPath))
-            {
-                lblSchemaFilePath.Hide();
-            }
-            else
-            {
-                lblSchemaFilePath.Text = Path.GetFileName(_state.SchemaPath);
-                lblSchemaFilePath.Show();
-            }
+            cbSchema.Text = _state.SchemaPath;
 
             lnkServerLocation.Text = SetupHelpers.EmbeddedServerManager.CurrentShadowBinFolder;
             lnkServerUrl.Text = SetupHelpers.EmbeddedServerManager.EmbeddedServerUri;
@@ -96,18 +90,6 @@ namespace JsReportVSTools
             rbHeader.Text = _state.Phantom.Header;
             cbFormat.Text = _state.Phantom.Format;
             cbPaperOrientation.Text = _state.Phantom.Orientation;
-        }
-
-        private void openSchemaDialog_click(object sender, EventArgs e)
-        {
-            schemaDialog.ShowDialog();
-
-            if (string.IsNullOrEmpty(schemaDialog.FileName))
-                return;
-
-            _state.SchemaPath = SetupHelpers.GetSolutionFileFullName(schemaDialog.FileName);
-            RefreshView();
-            NotifyChange();
         }
 
         private void cbEngine_SelectedValueChanged(object sender, EventArgs e)
@@ -140,17 +122,9 @@ namespace JsReportVSTools
             }
         }
 
-        private string ReadHtml()
-        {
-            string fileName = Path.GetFileName(_fileName);
-            string dir = new FileInfo(_fileName).Directory.FullName;
-
-            return File.ReadAllText(Path.Combine(dir, fileName + ".html"));
-        }
-
         private async Task FillRecipes(string fileName)
         {
-            foreach (string r in await SetupHelpers.GetRecipesAsync(fileName))
+            foreach (string r in await SetupHelpers.GetRecipesAsync(fileName).ConfigureAwait(false))
             {
                 cbRecipe.Items.Add(new {Text = r, Value = r});
             }
@@ -158,7 +132,7 @@ namespace JsReportVSTools
 
         private async Task FillEngines(string fileName)
         {
-            foreach (string r in await SetupHelpers.GetEngines(fileName))
+            foreach (string r in await SetupHelpers.GetEngines(fileName).ConfigureAwait(false))
             {
                 cbEngine.Items.Add(new {Text = r, Value = r});
             }
@@ -235,28 +209,15 @@ namespace JsReportVSTools
             _state.Phantom.Footer = rbFooter.Text;
             NotifyChange();
         }
-    }
 
-    public class ReportDefinition
-    {
-        public string SchemaPath { get; set; }
-        public string Engine { get; set; }
+        private void cbSchema_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbSchema.Text == null)
+                return;
 
-        public string Recipe { get; set; }
+            _state.SchemaPath = cbSchema.Text;
 
-        public PhantomDefinition Phantom { get; set; }
-    }
-
-    public class PhantomDefinition
-    {
-        public string Margin { get; set; }
-        public string Header { get; set; }
-        public string HeaderHeight { get; set; }
-        public string Footer { get; set; }
-        public string FooterHeight { get; set; }
-        public string Orientation { get; set; }
-        public string Format { get; set; }
-        public string Width { get; set; }
-        public string Height { get; set; }
+            NotifyChange();
+        }
     }
 }

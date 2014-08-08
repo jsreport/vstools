@@ -1,3 +1,3 @@
-﻿{
-    
+﻿function sayWorld() {
+    return "world";
 }

@@ -11,9 +11,9 @@
     <DefaultName>Report.jsrep</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem SubType="Example" TargetFileName="$fileinputname$.jsrep" ReplaceParameters="true">Report.jsrep</ProjectItem>
-    <ProjectItem TargetFileName="$fileinputname$.jsrep.html" ReplaceParameters="true">Report.jsrep.html</ProjectItem>
-    <ProjectItem TargetFileName="$fileinputname$.jsrep.js" ReplaceParameters="true">Report.jsrep.js</ProjectItem>
+    <ProjectItem SubType="Desginer" TargetFileName="$fileinputname$.jsrep" ReplaceParameters="true">Report.jsrep</ProjectItem>
+    <ProjectItem SubType="Code" TargetFileName="$fileinputname$.jsrep.html" ReplaceParameters="true">Report.jsrep.html</ProjectItem>
+    <ProjectItem SubType="Code" TargetFileName="$fileinputname$.jsrep.js" ReplaceParameters="true">Report.jsrep.js</ProjectItem>
   </TemplateContent>
   <WizardExtension>
     <Assembly>Wizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3318b452adb50aef</Assembly>

@@ -77,15 +77,31 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReportItemTemplate.ico" />
+    <VSTemplate Include="SchemaItemTemplate.vstemplate">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </VSTemplate>
+    <None Include="ReportItemTemplate.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Report.jsrep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="ReportSchema.jsrep.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="ReportItemTemplate.vstemplate" />
+    <VSTemplate Include="ReportItemTemplate.vstemplate">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </VSTemplate>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ReportImage.jsrep.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <VSTemplate Include="ImageItemTemplate.vstemplate">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </VSTemplate>
     <Content Include="Report.jsrep.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

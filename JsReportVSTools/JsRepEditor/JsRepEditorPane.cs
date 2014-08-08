@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using JsReportVSTools;
-using JsReportVSTools.JsRepEditor;
+using JsReportVSTools.Impl;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -178,6 +178,7 @@ namespace JsReportVSTools
                       // Create and initialize the editor
 
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JsRepEditorPane));
+
             this.editorControl = new JsRepSetup();
 
             resources.ApplyResources(this.editorControl, "editorControl", CultureInfo.CurrentUICulture);
@@ -425,8 +426,8 @@ namespace JsReportVSTools
                     str.Close();
                 }
 
+
                 editorControl.LoadStateFromFile(pszFilename);
-                
 
                 isDirty = false;
 

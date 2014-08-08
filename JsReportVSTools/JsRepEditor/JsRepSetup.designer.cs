@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnOpenSchemaDialog = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.pnlPhantom = new System.Windows.Forms.Panel();
@@ -61,28 +60,18 @@
             this.label4 = new System.Windows.Forms.Label();
             this.cbRecipe = new System.Windows.Forms.ComboBox();
             this.cbEngine = new System.Windows.Forms.ComboBox();
-            this.lblSchemaFilePath = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.schemaDialog = new System.Windows.Forms.OpenFileDialog();
+            this.cbSchema = new System.Windows.Forms.ComboBox();
+            this.pnlHeader = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.pnlPhantom.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnOpenSchemaDialog
-            // 
-            this.btnOpenSchemaDialog.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnOpenSchemaDialog.Location = new System.Drawing.Point(189, 167);
-            this.btnOpenSchemaDialog.Margin = new System.Windows.Forms.Padding(2);
-            this.btnOpenSchemaDialog.Name = "btnOpenSchemaDialog";
-            this.btnOpenSchemaDialog.Size = new System.Drawing.Size(32, 20);
-            this.btnOpenSchemaDialog.TabIndex = 1;
-            this.btnOpenSchemaDialog.Text = "....";
-            this.btnOpenSchemaDialog.UseVisualStyleBackColor = true;
-            this.btnOpenSchemaDialog.Click += new System.EventHandler(this.openSchemaDialog_click);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.Location = new System.Drawing.Point(22, 135);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -93,6 +82,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.cbSchema);
             this.panel1.Controls.Add(this.pnlPhantom);
             this.panel1.Controls.Add(this.lnkServerUrl);
             this.panel1.Controls.Add(this.lnkServerLocation);
@@ -105,14 +95,12 @@
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.cbRecipe);
             this.panel1.Controls.Add(this.cbEngine);
-            this.panel1.Controls.Add(this.lblSchemaFilePath);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.btnOpenSchemaDialog);
-            this.panel1.Location = new System.Drawing.Point(15, 14);
+            this.panel1.Location = new System.Drawing.Point(15, 43);
             this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(697, 643);
+            this.panel1.Size = new System.Drawing.Size(697, 647);
             this.panel1.TabIndex = 5;
             // 
             // pnlPhantom
@@ -432,24 +420,15 @@
             // 
             // cbEngine
             // 
+            this.cbEngine.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cbEngine.FormattingEnabled = true;
+            this.cbEngine.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.cbEngine.Location = new System.Drawing.Point(174, 133);
             this.cbEngine.Margin = new System.Windows.Forms.Padding(2);
             this.cbEngine.Name = "cbEngine";
             this.cbEngine.Size = new System.Drawing.Size(92, 21);
             this.cbEngine.TabIndex = 11;
             this.cbEngine.SelectedValueChanged += new System.EventHandler(this.cbEngine_SelectedValueChanged);
-            // 
-            // lblSchemaFilePath
-            // 
-            this.lblSchemaFilePath.AutoSize = true;
-            this.lblSchemaFilePath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lblSchemaFilePath.Location = new System.Drawing.Point(225, 171);
-            this.lblSchemaFilePath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblSchemaFilePath.Name = "lblSchemaFilePath";
-            this.lblSchemaFilePath.Size = new System.Drawing.Size(65, 13);
-            this.lblSchemaFilePath.TabIndex = 6;
-            this.lblSchemaFilePath.Text = "Schema File";
             // 
             // label2
             // 
@@ -462,10 +441,29 @@
             this.label2.TabIndex = 5;
             this.label2.Text = "Json file with schema for preview";
             // 
+            // cbSchema
+            // 
+            this.cbSchema.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbSchema.FormattingEnabled = true;
+            this.cbSchema.Location = new System.Drawing.Point(189, 168);
+            this.cbSchema.Margin = new System.Windows.Forms.Padding(2);
+            this.cbSchema.Name = "cbSchema";
+            this.cbSchema.Size = new System.Drawing.Size(142, 21);
+            this.cbSchema.TabIndex = 29;
+            this.cbSchema.SelectedIndexChanged += new System.EventHandler(this.cbSchema_SelectedIndexChanged);
+            // 
+            // pnlHeader
+            // 
+            this.pnlHeader.Location = new System.Drawing.Point(17, 4);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(694, 34);
+            this.pnlHeader.TabIndex = 6;
+            // 
             // JsRepSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pnlHeader);
             this.Controls.Add(this.panel1);
             this.Name = "JsRepSetup";
             this.Size = new System.Drawing.Size(714, 558);
@@ -479,10 +477,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btnOpenSchemaDialog;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label lblSchemaFilePath;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.OpenFileDialog schemaDialog;
         private System.Windows.Forms.ComboBox cbEngine;
@@ -515,6 +511,8 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.RichTextBox rbHeader;
         private System.Windows.Forms.RichTextBox rbFooter;
+        private System.Windows.Forms.ComboBox cbSchema;
+        private System.Windows.Forms.Panel pnlHeader;
 
 
     }

@@ -17,7 +17,7 @@ namespace Wizard
                 return ProjectItemTypes.Child;
             }
 
-            if (item.Name.IndexOf(".jsrep.js") > 0)
+            if (item.Name.IndexOf(".jsrep.js") > 0 && item.Name.IndexOf(".jsrep.json") < 0)
             {
                 return ProjectItemTypes.Child;
             }
@@ -48,7 +48,7 @@ namespace Wizard
                     break;
             }
 
-            projectItem.Properties.Item("CopyToOutputDirectory").Value = 1;         
+            projectItem.Properties.Item("CopyToOutputDirectory").Value = 1;     
         }
 
         public void RunFinished()

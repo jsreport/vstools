@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using JsReportVSTools;
-using JsReportVSTools.JsRepEditor;
+using JsReportVSTools.Impl;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using JsReportVSTools.Options;
