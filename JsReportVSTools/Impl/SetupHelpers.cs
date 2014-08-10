@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -16,8 +18,10 @@ namespace JsReportVSTools.Impl
     {
         private static DTE2 _dte;
         private static IEnumerable<string> _cachedRecipes;
+        private static IEnumerable<string> _cachedSchemas;
         private static IEnumerable<string> _cachedEngines;
-        private static CommandEvents _debugCommandEvents;
+        private static CommandEvents _debugCommandEvent;
+        private static CommandEvents _cteateProjectItemEvent;
         public static EmbeddedServerManager EmbeddedServerManager { get; set; }
 
         public static bool HasCachedEngines
@@ -35,8 +39,8 @@ namespace JsReportVSTools.Impl
             _dte = ServiceProvider.GlobalProvider.GetService(typeof (DTE)) as DTE2;
 
             //register for F5 hit event and start previewing if selected document is jsreport
-            _debugCommandEvents = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 295];
-            _debugCommandEvents.BeforeExecute +=
+            _debugCommandEvent = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 295];
+            _debugCommandEvent.BeforeExecute +=
                 (string guid, int id, object @in, object @out, ref bool @default) =>
                 {
                     if (_dte.ActiveDocument != null && _dte.ActiveDocument.FullName.Contains(".jsrep") && 
@@ -46,6 +50,14 @@ namespace JsReportVSTools.Impl
                         @default = true;
                         DoPreviewActiveItem().Wait();
                     }
+                };
+
+            _cteateProjectItemEvent = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 220];
+
+            _cteateProjectItemEvent.AfterExecute +=
+                (string guid, int id, object @in, object @out) =>
+                {
+                    _cachedSchemas = null;
                 };
 
             EmbeddedServerManager = new EmbeddedServerManager(_dte);
@@ -69,11 +81,7 @@ namespace JsReportVSTools.Impl
                 _dte.ExecuteCommand("File.SaveAll");
 
                 _dte.Solution.SolutionBuild.BuildProject("Debug", EmbeddedServerManager.CurrentProjectName, true);
-
-                string definitionPath = _dte.ActiveDocument.FullName.RemoveFromEnd(".html").RemoveFromEnd(".js");
-
-                ReportDefinition rd = ReadReportDefinition(definitionPath);
-
+                
                 await EmbeddedServerManager.SynchronizeTemplatesAsync().ConfigureAwait(false);
 
                 msgPump.CurrentStep = 3;
@@ -81,7 +89,10 @@ namespace JsReportVSTools.Impl
                 msgPump.StatusBarText = msgPump.ProgressText;
 
                 dynamic service = EmbeddedServerManager.CreateReportingService();
-                dynamic report = await service.RenderAsync(Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(_dte.ActiveDocument.Name)), null);
+                
+                //jsreport shortid is case sensitive and _dte.ActiveDocument.Name sometime does not return exact filename value
+                var shortid = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(new FileInfo(_dte.ActiveDocument.Name).Name));
+                dynamic report = await service.RenderAsync(shortid, null);
 
                 msgPump.CurrentStep = 4;
                 msgPump.ProgressText = "Opening report";
@@ -150,6 +161,45 @@ namespace JsReportVSTools.Impl
             window.Activate();
         }
 
+        public static void OpenSchema(ReportDefinition rd)
+        {
+            var fileNameToSearch = rd.Schema + ".jsrep.json";
+
+            var item = GetAllProjectItemsFromActiveProject().SingleOrDefault(p => p.Name == fileNameToSearch);
+
+            if (item != null)
+            {
+                Window window = item.Open();
+                window.Activate();
+            }
+        }
+
+        private static IEnumerable<ProjectItem> GetAllProjectItemsFromActiveProject()
+        {
+            var rootItems = _dte.ActiveDocument.ProjectItem.ContainingProject.ProjectItems.Cast<ProjectItem>().ToList();
+            var result = new List<ProjectItem>(rootItems);
+
+
+            foreach (var item in rootItems)
+            {
+                 result.AddRange(GetAllProjectItemsFromActiveProjectInner(item));
+            }
+
+            return result;
+        } 
+
+        private static IEnumerable<ProjectItem> GetAllProjectItemsFromActiveProjectInner(ProjectItem item)
+        {
+            var result = new List<ProjectItem>() {item};
+
+            foreach (ProjectItem innerItem in item.ProjectItems)
+            {
+                result.AddRange(GetAllProjectItemsFromActiveProjectInner(innerItem));    
+            }
+
+            return result;
+        } 
+
         public static void OpenFileInBrowser(string path)
         {
             _dte.ExecuteCommand("View.WebBrowser", "\"file:///" + path.Replace('\\', '/') + "\"");
@@ -196,8 +246,12 @@ namespace JsReportVSTools.Impl
 
         public static IEnumerable<string> GetSchemas()
         {
+            if (_cachedSchemas != null)
+                return _cachedSchemas;
+
             _dte.Solution.SolutionBuild.BuildProject("Debug", EmbeddedServerManager.CurrentProjectName, true);
-            return EmbeddedServerManager.GetSchemas();
+            return _cachedSchemas = Directory.GetFiles(EmbeddedServerManager.CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
+                .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p)));
         }
 
         public static async Task<IEnumerable<string>> GetEngines(string fileName)
@@ -223,14 +277,10 @@ namespace JsReportVSTools.Impl
             
             return _cachedEngines;
         }
-        
-        public static string RemoveFromEnd(this string s, string suffix)
+
+        public static void OpenEmbeddedServer()
         {
-            if (s.EndsWith(suffix))
-            {
-                return s.Substring(0, s.Length - suffix.Length);
-            }
-            return s;
+            System.Diagnostics.Process.Start(EmbeddedServerManager.EmbeddedServerUri);
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using JsReportVSTools;
 using JsReportVSTools.Impl;
+using JsReportVSTools.JsRepEditor;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -67,7 +68,7 @@ namespace JsReportVSTools
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [ComSourceInterfaces(typeof(IVsTextViewEvents))]
     [ComVisible(true)]
-    public sealed class JsRepEditorPane : Microsoft.VisualStudio.Shell.WindowPane,
+    public sealed class JsRepEditorPane : WindowPane,
                                 IVsPersistDocData,  //to Enable persistence functionality for document data
                                 IPersistFileFormat, //to enable the programmatic loading or saving of an object 
         //in a format specified by the user.
@@ -112,7 +113,8 @@ namespace JsReportVSTools
         // when the changes are related to the load operation.
         private bool loading;
    
-        private JsRepSetup editorControl;
+        //private JsRepSetup editorControl;
+        private JsReportEditor editorControl;
                 
         private IVsFileChangeEx vsFileChangeEx;
 
@@ -140,19 +142,9 @@ namespace JsReportVSTools
             : base(null)
         {
             PrivateInit(package);
+            base.Content = this.editorControl;
         }
-
-        /// <summary>
-        /// This is a required override from the Microsoft.VisualStudio.Shell.WindowPane class.
-        /// It returns the extended rich text box that we host.
-        /// </summary>
-        public override IWin32Window Window
-        {
-            get
-            {
-                return this.editorControl;
-            }
-        }
+        
         #endregion
 
         /// <summary>
@@ -178,8 +170,8 @@ namespace JsReportVSTools
                       // Create and initialize the editor
 
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JsRepEditorPane));
-
-            this.editorControl = new JsRepSetup();
+            
+            this.editorControl = new JsReportEditor();
 
             resources.ApplyResources(this.editorControl, "editorControl", CultureInfo.CurrentUICulture);
             // Event handlers for macro recording.
@@ -229,7 +221,7 @@ namespace JsReportVSTools
 
                     if (editorControl != null)
                     {                      
-                        editorControl.Dispose();
+                        //editorControl.Dispose();
                         editorControl = null;
                     }
                     if (FileChangeTrigger != null)
@@ -1002,7 +994,7 @@ namespace JsReportVSTools
         /// <param name="_isFileReadOnly">Indicates whether the file loaded is Read Only or not</param>
         private void SetReadOnly(bool _isFileReadOnly)
         {
-            this.editorControl.ReadOnly = _isFileReadOnly;
+            this.editorControl.IsEnabled = !_isFileReadOnly;
 
             //update editor caption with "[Read Only]" or "" as necessary
             IVsWindowFrame frame = (IVsWindowFrame)GetService(typeof(SVsWindowFrame));

@@ -22,7 +22,7 @@ namespace JsReportVSTools.Impl
     public class EmbeddedServerManager
     {
         private readonly DTE2 _dte;
-        private string _currentBinFolder;
+        public string CurrentBinFolder { get; set; }
         private dynamic _embeddedReportingServer;
         private bool _running;
         
@@ -67,13 +67,8 @@ namespace JsReportVSTools.Impl
         /// </summary>
         public async Task SynchronizeTemplatesAsync()
         {
-           Copy(_currentBinFolder, CurrentShadowBinFolder, "*.jsrep*");
+           Copy(CurrentBinFolder, CurrentShadowBinFolder, "*.jsrep*");
            await Task.Run(async () => await (Task)_embeddedReportingServer.SynchronizeTemplatesAsync()).ConfigureAwait(false);
-        }
-        
-        public IEnumerable<string> GetSchemas()
-        {
-            return Directory.EnumerateFiles(_currentBinFolder, "*.jsrep.json").Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p)));
         }
 
         /// <summary>
@@ -101,8 +96,8 @@ namespace JsReportVSTools.Impl
 
             _dte.Solution.SolutionBuild.BuildProject("Debug", project.UniqueName, true);
 
-            _currentBinFolder = Path.Combine(new FileInfo(project.FullName).DirectoryName, "Bin", "Debug");
-            string pathToDll = Path.Combine(_currentBinFolder, "jsreport.Embedded.dll");
+            CurrentBinFolder = Path.Combine(new FileInfo(project.FullName).DirectoryName, "Bin", "Debug");
+            string pathToDll = Path.Combine(CurrentBinFolder, "jsreport.Embedded.dll");
 
             if (!File.Exists(pathToDll))
             {
@@ -113,7 +108,7 @@ namespace JsReportVSTools.Impl
 
             CurrentShadowBinFolder = Path.Combine(Path.GetTempPath(),
                 "jsreport-embedded-" + CurrentProjectName.Replace(".csproj", ""));
-            Copy(_currentBinFolder, CurrentShadowBinFolder);
+            Copy(CurrentBinFolder, CurrentShadowBinFolder);
 
 
             if (Directory.Exists(Path.Combine(CurrentShadowBinFolder, "jsreport-net-embedded")))
@@ -161,22 +156,39 @@ namespace JsReportVSTools.Impl
             return string.Empty;
         }
 
-        private void Copy(string source, string destination, string pattern = "*.*")
+        private static void Copy(string sourceDirName, string destDirName, string pattern = "*.*")
         {
-            if (Directory.Exists(destination))
-                Directory.CreateDirectory(destination);
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
 
-            foreach (string newPath in Directory.GetFiles(source, pattern, SearchOption.TopDirectoryOnly))
+            if (!dir.Exists)
             {
-                string destPath = newPath.Replace(source, destination);
-                try
-                {
-                    if (new FileInfo(destPath).LastWriteTime < new FileInfo(newPath).LastWriteTime)
-                        File.Copy(newPath, destPath, true);
-                }
-                catch (Exception e)
-                {
-                }
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            // If the destination directory doesn't exist, create it. 
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles(pattern);
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+
+                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime)
+                    file.CopyTo(temppath, true);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                Copy(subdir.FullName, temppath);
             }
         }
 

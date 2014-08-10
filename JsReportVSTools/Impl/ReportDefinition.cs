@@ -2,7 +2,7 @@
 {
     public class ReportDefinition
     {
-        public string SchemaPath { get; set; }
+        public string Schema { get; set; }
         public string Engine { get; set; }
 
         public string Recipe { get; set; }

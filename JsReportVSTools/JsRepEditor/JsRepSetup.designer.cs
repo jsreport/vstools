@@ -29,7 +29,19 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.cbSchema = new System.Windows.Forms.ComboBox();
+            this.lnkServerUrl = new System.Windows.Forms.LinkLabel();
+            this.lnkServerLocation = new System.Windows.Forms.LinkLabel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.lnkHtml = new System.Windows.Forms.LinkLabel();
+            this.lnkHelpers = new System.Windows.Forms.LinkLabel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cbRecipe = new System.Windows.Forms.ComboBox();
+            this.cbEngine = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.pnlPhantom = new System.Windows.Forms.Panel();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -49,23 +61,10 @@
             this.label9 = new System.Windows.Forms.Label();
             this.tbMargin = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.lnkServerUrl = new System.Windows.Forms.LinkLabel();
-            this.lnkServerLocation = new System.Windows.Forms.LinkLabel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.lnkHtml = new System.Windows.Forms.LinkLabel();
-            this.lnkHelpers = new System.Windows.Forms.LinkLabel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.cbRecipe = new System.Windows.Forms.ComboBox();
-            this.cbEngine = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.schemaDialog = new System.Windows.Forms.OpenFileDialog();
-            this.cbSchema = new System.Windows.Forms.ComboBox();
-            this.pnlHeader = new System.Windows.Forms.Panel();
-            this.panel1.SuspendLayout();
+            this.pnlMain = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlPhantom.SuspendLayout();
+            this.pnlMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -73,35 +72,151 @@
             this.label1.AutoSize = true;
             this.label1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(22, 135);
+            this.label1.Location = new System.Drawing.Point(264, 50);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(148, 13);
             this.label1.TabIndex = 4;
             this.label1.Text = "JavaScript Templating Engine";
             // 
-            // panel1
+            // cbSchema
             // 
-            this.panel1.Controls.Add(this.cbSchema);
-            this.panel1.Controls.Add(this.pnlPhantom);
-            this.panel1.Controls.Add(this.lnkServerUrl);
-            this.panel1.Controls.Add(this.lnkServerLocation);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.lnkHtml);
-            this.panel1.Controls.Add(this.lnkHelpers);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.cbRecipe);
-            this.panel1.Controls.Add(this.cbEngine);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(15, 43);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(697, 647);
-            this.panel1.TabIndex = 5;
+            this.cbSchema.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbSchema.FormattingEnabled = true;
+            this.cbSchema.Location = new System.Drawing.Point(2, 2);
+            this.cbSchema.Margin = new System.Windows.Forms.Padding(2);
+            this.cbSchema.Name = "cbSchema";
+            this.cbSchema.Size = new System.Drawing.Size(142, 21);
+            this.cbSchema.TabIndex = 29;
+            this.cbSchema.SelectedIndexChanged += new System.EventHandler(this.cbSchema_SelectedIndexChanged);
+            // 
+            // lnkServerUrl
+            // 
+            this.lnkServerUrl.AutoSize = true;
+            this.lnkServerUrl.Location = new System.Drawing.Point(149, 0);
+            this.lnkServerUrl.Name = "lnkServerUrl";
+            this.lnkServerUrl.Size = new System.Drawing.Size(103, 13);
+            this.lnkServerUrl.TabIndex = 27;
+            this.lnkServerUrl.TabStop = true;
+            this.lnkServerUrl.Text = "embedded server url";
+            // 
+            // lnkServerLocation
+            // 
+            this.lnkServerLocation.AutoSize = true;
+            this.lnkServerLocation.Location = new System.Drawing.Point(258, 0);
+            this.lnkServerLocation.Name = "lnkServerLocation";
+            this.lnkServerLocation.Size = new System.Drawing.Size(129, 13);
+            this.lnkServerLocation.TabIndex = 26;
+            this.lnkServerLocation.TabStop = true;
+            this.lnkServerLocation.Text = "embedded server location";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label8.Location = new System.Drawing.Point(392, 0);
+            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(193, 20);
+            this.label8.TabIndex = 25;
+            this.label8.Text = "Hit F5 to preview template";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label7.Location = new System.Drawing.Point(589, 0);
+            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(41, 13);
+            this.label7.TabIndex = 24;
+            this.label7.Text = "Recipe";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label6.Location = new System.Drawing.Point(634, 0);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(137, 13);
+            this.label6.TabIndex = 20;
+            this.label6.Text = "Template configuration";
+            // 
+            // lnkHtml
+            // 
+            this.lnkHtml.AutoSize = true;
+            this.lnkHtml.Location = new System.Drawing.Point(775, 0);
+            this.lnkHtml.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lnkHtml.Name = "lnkHtml";
+            this.lnkHtml.Size = new System.Drawing.Size(90, 13);
+            this.lnkHtml.TabIndex = 19;
+            this.lnkHtml.TabStop = true;
+            this.lnkHtml.Text = "Go report content";
+            this.lnkHtml.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHtml_LinkClicked);
+            // 
+            // lnkHelpers
+            // 
+            this.lnkHelpers.AutoSize = true;
+            this.lnkHelpers.Location = new System.Drawing.Point(869, 0);
+            this.lnkHelpers.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lnkHelpers.Name = "lnkHelpers";
+            this.lnkHelpers.Size = new System.Drawing.Size(100, 13);
+            this.lnkHelpers.TabIndex = 18;
+            this.lnkHelpers.TabStop = true;
+            this.lnkHelpers.Text = "Go to report helpers";
+            this.lnkHelpers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelpers_LinkClicked);
+            // 
+            // label5
+            // 
+            this.label5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label5.Location = new System.Drawing.Point(2, 25);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(420, 2);
+            this.label5.TabIndex = 17;
+            // 
+            // label4
+            // 
+            this.label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.label4.Location = new System.Drawing.Point(426, 25);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(419, 2);
+            this.label4.TabIndex = 16;
+            // 
+            // cbRecipe
+            // 
+            this.cbRecipe.FormattingEnabled = true;
+            this.cbRecipe.Location = new System.Drawing.Point(849, 27);
+            this.cbRecipe.Margin = new System.Windows.Forms.Padding(2);
+            this.cbRecipe.Name = "cbRecipe";
+            this.cbRecipe.Size = new System.Drawing.Size(106, 21);
+            this.cbRecipe.TabIndex = 15;
+            this.cbRecipe.SelectedValueChanged += new System.EventHandler(this.cbRecipe_SelectedValueChanged);
+            // 
+            // cbEngine
+            // 
+            this.cbEngine.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbEngine.FormattingEnabled = true;
+            this.cbEngine.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.cbEngine.Location = new System.Drawing.Point(2, 52);
+            this.cbEngine.Margin = new System.Windows.Forms.Padding(2);
+            this.cbEngine.Name = "cbEngine";
+            this.cbEngine.Size = new System.Drawing.Size(92, 21);
+            this.cbEngine.TabIndex = 11;
+            this.cbEngine.SelectedValueChanged += new System.EventHandler(this.cbEngine_SelectedValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label2.Location = new System.Drawing.Point(98, 50);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(162, 13);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Json file with schema for preview";
             // 
             // pnlPhantom
             // 
@@ -123,7 +238,7 @@
             this.pnlPhantom.Controls.Add(this.label9);
             this.pnlPhantom.Controls.Add(this.tbMargin);
             this.pnlPhantom.Controls.Add(this.label3);
-            this.pnlPhantom.Location = new System.Drawing.Point(26, 236);
+            this.pnlPhantom.Location = new System.Drawing.Point(3, 78);
             this.pnlPhantom.Name = "pnlPhantom";
             this.pnlPhantom.Size = new System.Drawing.Size(599, 292);
             this.pnlPhantom.TabIndex = 28;
@@ -313,174 +428,64 @@
             this.label3.TabIndex = 25;
             this.label3.Text = "Margin";
             // 
-            // lnkServerUrl
+            // pnlMain
             // 
-            this.lnkServerUrl.AutoSize = true;
-            this.lnkServerUrl.Location = new System.Drawing.Point(348, 133);
-            this.lnkServerUrl.Name = "lnkServerUrl";
-            this.lnkServerUrl.Size = new System.Drawing.Size(103, 13);
-            this.lnkServerUrl.TabIndex = 27;
-            this.lnkServerUrl.TabStop = true;
-            this.lnkServerUrl.Text = "embedded server url";
-            // 
-            // lnkServerLocation
-            // 
-            this.lnkServerLocation.AutoSize = true;
-            this.lnkServerLocation.Location = new System.Drawing.Point(348, 110);
-            this.lnkServerLocation.Name = "lnkServerLocation";
-            this.lnkServerLocation.Size = new System.Drawing.Size(129, 13);
-            this.lnkServerLocation.TabIndex = 26;
-            this.lnkServerLocation.TabStop = true;
-            this.lnkServerLocation.Text = "embedded server location";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label8.Location = new System.Drawing.Point(22, 21);
-            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(193, 20);
-            this.label8.TabIndex = 25;
-            this.label8.Text = "Hit F5 to preview template";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label7.Location = new System.Drawing.Point(22, 203);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(41, 13);
-            this.label7.TabIndex = 24;
-            this.label7.Text = "Recipe";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label6.Location = new System.Drawing.Point(21, 110);
-            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(137, 13);
-            this.label6.TabIndex = 20;
-            this.label6.Text = "Template configuration";
-            // 
-            // lnkHtml
-            // 
-            this.lnkHtml.AutoSize = true;
-            this.lnkHtml.Location = new System.Drawing.Point(22, 71);
-            this.lnkHtml.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lnkHtml.Name = "lnkHtml";
-            this.lnkHtml.Size = new System.Drawing.Size(90, 13);
-            this.lnkHtml.TabIndex = 19;
-            this.lnkHtml.TabStop = true;
-            this.lnkHtml.Text = "Go report content";
-            this.lnkHtml.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHtml_LinkClicked);
-            // 
-            // lnkHelpers
-            // 
-            this.lnkHelpers.AutoSize = true;
-            this.lnkHelpers.Location = new System.Drawing.Point(116, 71);
-            this.lnkHelpers.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lnkHelpers.Name = "lnkHelpers";
-            this.lnkHelpers.Size = new System.Drawing.Size(100, 13);
-            this.lnkHelpers.TabIndex = 18;
-            this.lnkHelpers.TabStop = true;
-            this.lnkHelpers.Text = "Go to report helpers";
-            this.lnkHelpers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHelpers_LinkClicked);
-            // 
-            // label5
-            // 
-            this.label5.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label5.Location = new System.Drawing.Point(2, 98);
-            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(420, 2);
-            this.label5.TabIndex = 17;
-            // 
-            // label4
-            // 
-            this.label4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.label4.Location = new System.Drawing.Point(2, 50);
-            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(419, 2);
-            this.label4.TabIndex = 16;
-            // 
-            // cbRecipe
-            // 
-            this.cbRecipe.FormattingEnabled = true;
-            this.cbRecipe.Location = new System.Drawing.Point(64, 200);
-            this.cbRecipe.Margin = new System.Windows.Forms.Padding(2);
-            this.cbRecipe.Name = "cbRecipe";
-            this.cbRecipe.Size = new System.Drawing.Size(106, 21);
-            this.cbRecipe.TabIndex = 15;
-            this.cbRecipe.SelectedValueChanged += new System.EventHandler(this.cbRecipe_SelectedValueChanged);
-            // 
-            // cbEngine
-            // 
-            this.cbEngine.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbEngine.FormattingEnabled = true;
-            this.cbEngine.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.cbEngine.Location = new System.Drawing.Point(174, 133);
-            this.cbEngine.Margin = new System.Windows.Forms.Padding(2);
-            this.cbEngine.Name = "cbEngine";
-            this.cbEngine.Size = new System.Drawing.Size(92, 21);
-            this.cbEngine.TabIndex = 11;
-            this.cbEngine.SelectedValueChanged += new System.EventHandler(this.cbEngine_SelectedValueChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(23, 171);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(162, 13);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Json file with schema for preview";
-            // 
-            // cbSchema
-            // 
-            this.cbSchema.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbSchema.FormattingEnabled = true;
-            this.cbSchema.Location = new System.Drawing.Point(189, 168);
-            this.cbSchema.Margin = new System.Windows.Forms.Padding(2);
-            this.cbSchema.Name = "cbSchema";
-            this.cbSchema.Size = new System.Drawing.Size(142, 21);
-            this.cbSchema.TabIndex = 29;
-            this.cbSchema.SelectedIndexChanged += new System.EventHandler(this.cbSchema_SelectedIndexChanged);
+            this.pnlMain.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlMain.Controls.Add(this.cbSchema);
+            this.pnlMain.Controls.Add(this.lnkServerUrl);
+            this.pnlMain.Controls.Add(this.lnkServerLocation);
+            this.pnlMain.Controls.Add(this.label8);
+            this.pnlMain.Controls.Add(this.label7);
+            this.pnlMain.Controls.Add(this.label6);
+            this.pnlMain.Controls.Add(this.lnkHtml);
+            this.pnlMain.Controls.Add(this.lnkHelpers);
+            this.pnlMain.Controls.Add(this.label5);
+            this.pnlMain.Controls.Add(this.label4);
+            this.pnlMain.Controls.Add(this.cbRecipe);
+            this.pnlMain.Controls.Add(this.cbEngine);
+            this.pnlMain.Controls.Add(this.label2);
+            this.pnlMain.Controls.Add(this.label1);
+            this.pnlMain.Controls.Add(this.pnlPhantom);
+            this.pnlMain.Location = new System.Drawing.Point(0, 0);
+            this.pnlMain.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlMain.Name = "pnlMain";
+            this.pnlMain.Size = new System.Drawing.Size(1015, 670);
+            this.pnlMain.TabIndex = 5;
             // 
             // pnlHeader
             // 
-            this.pnlHeader.Location = new System.Drawing.Point(17, 4);
+            this.pnlHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlHeader.AutoSize = true;
+            this.pnlHeader.BackgroundImage = global::JsReportVSTools.VSPackage.header;
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(694, 34);
-            this.pnlHeader.TabIndex = 6;
+            this.pnlHeader.Size = new System.Drawing.Size(1015, 51);
+            this.pnlHeader.TabIndex = 30;
             // 
             // JsRepSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pnlHeader);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.pnlMain);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "JsRepSetup";
-            this.Size = new System.Drawing.Size(714, 558);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.Size = new System.Drawing.Size(1221, 1249);
             this.pnlPhantom.ResumeLayout(false);
             this.pnlPhantom.PerformLayout();
+            this.pnlMain.ResumeLayout(false);
+            this.pnlMain.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.OpenFileDialog schemaDialog;
         private System.Windows.Forms.ComboBox cbEngine;
         private System.Windows.Forms.ComboBox cbRecipe;
         private System.Windows.Forms.Label label4;
@@ -512,7 +517,8 @@
         private System.Windows.Forms.RichTextBox rbHeader;
         private System.Windows.Forms.RichTextBox rbFooter;
         private System.Windows.Forms.ComboBox cbSchema;
-        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.FlowLayoutPanel pnlMain;
+        private System.Windows.Forms.FlowLayoutPanel pnlHeader;
 
 
     }

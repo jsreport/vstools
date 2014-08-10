@@ -2,12 +2,10 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using EnvDTE;
-using JsReportVSTools;
 using JsReportVSTools.Impl;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using JsReportVSTools.Options;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace JsReportVSTools
 {
@@ -42,7 +40,11 @@ namespace JsReportVSTools
     [ProvideEditorLogicalView(typeof(JsRepEditorFactory), VSConstants.LOGVIEWID.TextView_string)]
     [ProvideEditorLogicalView(typeof(JsRepEditorFactory), VSConstants.LOGVIEWID.Designer_string)]
     [Guid(GuidList.guidJsReportVSToolsPkgString)]
+    //this will ensure package is started on vs startup, its important to register F5 event to be able to render
+    //reports even from *.jsrep.html pages
     [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
+    //this will allow to run wpf toolkit
+    [ProvideBindingPath]
     public sealed class JsReportVSToolsPackage : Package
     {
         /// <summary>

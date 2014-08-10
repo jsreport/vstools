@@ -72,7 +72,7 @@ namespace JsReportVSTools
         {
             cbEngine.Text = _state.Engine;
             cbRecipe.Text = _state.Recipe;
-            cbSchema.Text = _state.SchemaPath;
+            cbSchema.Text = _state.Schema;
 
             lnkServerLocation.Text = SetupHelpers.EmbeddedServerManager.CurrentShadowBinFolder;
             lnkServerUrl.Text = SetupHelpers.EmbeddedServerManager.EmbeddedServerUri;
@@ -215,7 +215,7 @@ namespace JsReportVSTools
             if (cbSchema.Text == null)
                 return;
 
-            _state.SchemaPath = cbSchema.Text;
+            _state.Schema = cbSchema.Text;
 
             NotifyChange();
         }
