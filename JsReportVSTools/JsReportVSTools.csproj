@@ -192,9 +192,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Impl\EmbeddedServerManager.cs" />
+    <Compile Include="Impl\FileSystemHelpers.cs" />
+    <Compile Include="Impl\IReportingServerManager.cs" />
     <Compile Include="Impl\MissingJsReportEmbeddedDllException.cs" />
     <Compile Include="Impl\PhantomDefinition.cs" />
+    <Compile Include="Impl\RemoteServerManager.cs" />
     <Compile Include="Impl\ReportDefinition.cs" />
+    <Compile Include="Impl\ReportingServerAdapter.cs" />
     <Compile Include="Intellisense\CompletionSource.cs" />
     <Compile Include="Intellisense\CompletionSourceProvider.cs" />
     <Compile Include="Intellisense\HtmlCompletionProvider.cs" />
@@ -227,9 +231,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Compile Include="Guids.cs" />
-    <Compile Include="Options\GeneralOptions.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="JsReportVSToolsPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

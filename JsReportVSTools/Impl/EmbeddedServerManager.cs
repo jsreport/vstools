@@ -19,31 +19,25 @@ namespace JsReportVSTools.Impl
     /// Responsible for managing lifecycle of jsreport nodejs server.
     /// It always keeps just one server running.
     /// </summary>
-    public class EmbeddedServerManager
+    public class EmbeddedServerManager : MarshalByRefObject, IReportingServerManager
     {
         private readonly DTE2 _dte;
-        public string CurrentBinFolder { get; set; }
-        private dynamic _embeddedReportingServer;
-        private bool _running;
         
-        public string CurrentShadowBinFolder { get; set; }
-        public string CurrentProjectName { get; set; }
-        public string EmbeddedServerUri
+        private dynamic _embeddedReportingServer;
+        private string _currentShadowBinFolder { get; set; }
+        private readonly Project _activeProject;
+
+        public string ServerUri
         {
             get { return _embeddedReportingServer.EmbeddedServerUri; }
         }
 
-        public EmbeddedServerManager(DTE2 dte)
+        public EmbeddedServerManager(DTE2 dte, Project activeProject, string currentShadowBinFolder)
         {
             _dte = dte;
-        }
-
-        private Project GetActiveProject(string fileName = null)
-        {
-            if (_dte.ActiveDocument != null)
-                return _dte.ActiveDocument.ProjectItem.ContainingProject;
-
-            return _dte.Solution.FindProjectItem(fileName).ContainingProject;
+            _activeProject = activeProject;
+            
+            _currentShadowBinFolder = currentShadowBinFolder;
         }
 
         /// <summary>
@@ -51,24 +45,15 @@ namespace JsReportVSTools.Impl
         /// </summary>
         public async Task EnsureStartedAsync(string fileName = null)
         {
-            if (_running &&
-                Process.GetProcessesByName("node")
-                    .Any(p => GetMainModuleFilePath(p.Id).Contains(CurrentShadowBinFolder)))
+            if (Process.GetProcessesByName("node").Any(p => GetMainModuleFilePath(p.Id).Contains(_currentShadowBinFolder)))
                 return;
-
-            if (_running && CurrentProjectName != GetActiveProject(fileName).UniqueName)
-                await StopAsync().ConfigureAwait(false);
 
             await StartAsync(fileName).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Synchronize jsreport templates from current project with currently running jsreport server
-        /// </summary>
-        public async Task SynchronizeTemplatesAsync()
+        public Task StopAsync()
         {
-           Copy(CurrentBinFolder, CurrentShadowBinFolder, "*.jsrep*");
-           await Task.Run(async () => await (Task)_embeddedReportingServer.SynchronizeTemplatesAsync()).ConfigureAwait(false);
+            return _embeddedReportingServer.StopAsync();
         }
 
         /// <summary>
@@ -77,10 +62,10 @@ namespace JsReportVSTools.Impl
         public object CreateReportingService()
         {
             Type reportingServiceType =
-                Assembly.LoadFrom(Path.Combine(CurrentShadowBinFolder, "jsreport.Client.dll"))
+                Assembly.LoadFrom(Path.Combine(_currentShadowBinFolder, "jsreport.Client.dll"))
                     .GetType("jsreport.Client.ReportingService");
 
-            return Activator.CreateInstance(reportingServiceType, EmbeddedServerUri);
+            return Activator.CreateInstance(reportingServiceType, ServerUri);
         }
       
         private async Task StartAsync(string fileName = null)
@@ -90,14 +75,7 @@ namespace JsReportVSTools.Impl
              * We keep separate temporary directory for every project.
             */
             
-            Project project = GetActiveProject(fileName);
-
-            CurrentProjectName = project.UniqueName;
-
-            _dte.Solution.SolutionBuild.BuildProject("Debug", project.UniqueName, true);
-
-            CurrentBinFolder = Path.Combine(new FileInfo(project.FullName).DirectoryName, "Bin", "Debug");
-            string pathToDll = Path.Combine(CurrentBinFolder, "jsreport.Embedded.dll");
+            string pathToDll = Path.Combine(_currentShadowBinFolder, "jsreport.Embedded.dll");
 
             if (!File.Exists(pathToDll))
             {
@@ -106,37 +84,14 @@ namespace JsReportVSTools.Impl
                 
             }
 
-            CurrentShadowBinFolder = Path.Combine(Path.GetTempPath(),
-                "jsreport-embedded-" + CurrentProjectName.Replace(".csproj", ""));
-            Copy(CurrentBinFolder, CurrentShadowBinFolder);
-
-
-            if (Directory.Exists(Path.Combine(CurrentShadowBinFolder, "jsreport-net-embedded")))
-                Directory.Delete(Path.Combine(CurrentShadowBinFolder, "jsreport-net-embedded"), true);
-
-            AppDomain.CurrentDomain.AssemblyResolve +=
-                (sender, args) =>
-                {
-                    return
-                        Assembly.LoadFrom(Path.Combine(CurrentShadowBinFolder,
-                            args.Name.Remove(args.Name.IndexOf(',')) + ".dll"));
-                };
-
             Type embeddedReportingServerType =
-                Assembly.LoadFrom(Path.Combine(CurrentShadowBinFolder, "jsreport.Embedded.dll"))
+                Assembly.LoadFrom(Path.Combine(_currentShadowBinFolder, "jsreport.Embedded.dll"))
                     .GetType("jsreport.Embedded.EmbeddedReportingServer");
 
             _embeddedReportingServer = Activator.CreateInstance(embeddedReportingServerType, FindFreePort());
 
-            _embeddedReportingServer.BinPath = CurrentShadowBinFolder;
+            _embeddedReportingServer.BinPath = _currentShadowBinFolder;
             await ((Task)_embeddedReportingServer.StartAsync()).ConfigureAwait(false);
-
-            _running = true;
-        }
-
-        private async Task StopAsync()
-        {
-            await ((Task)_embeddedReportingServer.StopAsync()).ConfigureAwait(false);
         }
 
         private string GetMainModuleFilePath(int processId)
@@ -154,42 +109,6 @@ namespace JsReportVSTools.Impl
                 }
             }
             return string.Empty;
-        }
-
-        private static void Copy(string sourceDirName, string destDirName, string pattern = "*.*")
-        {
-            // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-            DirectoryInfo[] dirs = dir.GetDirectories();
-
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirName);
-            }
-
-            // If the destination directory doesn't exist, create it. 
-            if (!Directory.Exists(destDirName))
-            {
-                Directory.CreateDirectory(destDirName);
-            }
-
-            // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles(pattern);
-            foreach (FileInfo file in files)
-            {
-                string temppath = Path.Combine(destDirName, file.Name);
-
-                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime)
-                    file.CopyTo(temppath, true);
-            }
-
-            foreach (DirectoryInfo subdir in dirs)
-            {
-                string temppath = Path.Combine(destDirName, subdir.Name);
-                Copy(subdir.FullName, temppath);
-            }
         }
 
         private static long FindFreePort()

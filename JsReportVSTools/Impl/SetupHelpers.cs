@@ -22,7 +22,8 @@ namespace JsReportVSTools.Impl
         private static IEnumerable<string> _cachedEngines;
         private static CommandEvents _debugCommandEvent;
         private static CommandEvents _cteateProjectItemEvent;
-        public static EmbeddedServerManager EmbeddedServerManager { get; set; }
+        private static DocumentEvents _documentEvents;
+        public static ReportingServerAdapter ReportingServerAdapter { get; set; }
 
         public static bool HasCachedEngines
         {
@@ -60,7 +61,14 @@ namespace JsReportVSTools.Impl
                     _cachedSchemas = null;
                 };
 
-            EmbeddedServerManager = new EmbeddedServerManager(_dte);
+            _documentEvents = _dte.Events.DocumentEvents;
+            _documentEvents.DocumentSaved += document =>
+            {
+                if (document.FullName.Contains("ReportingStartup"))
+                    ReportingServerAdapter.StopAsync().Wait();
+            };
+
+            ReportingServerAdapter = new ReportingServerAdapter(_dte);
         }
 
         private static async Task DoPreviewActiveItemInner(CommonMessagePump msgPump)
@@ -72,7 +80,7 @@ namespace JsReportVSTools.Impl
                 msgPump.ProgressText = "Preparing jsreport server";
                 msgPump.StatusBarText = msgPump.ProgressText;
 
-                await EmbeddedServerManager.EnsureStartedAsync().ConfigureAwait(false);
+                await ReportingServerAdapter.EnsureStartedAsync().ConfigureAwait(false);
 
                 msgPump.CurrentStep = 2;
                 msgPump.ProgressText = "Synchronizing templates";
@@ -80,15 +88,15 @@ namespace JsReportVSTools.Impl
 
                 _dte.ExecuteCommand("File.SaveAll");
 
-                _dte.Solution.SolutionBuild.BuildProject("Debug", EmbeddedServerManager.CurrentProjectName, true);
-                
-                await EmbeddedServerManager.SynchronizeTemplatesAsync().ConfigureAwait(false);
+                _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerAdapter.CurrentProject.UniqueName, true);
+
+                await ReportingServerAdapter.SynchronizeTemplatesAsync().ConfigureAwait(false);
 
                 msgPump.CurrentStep = 3;
                 msgPump.ProgressText = "Rendering template in jsreport";
                 msgPump.StatusBarText = msgPump.ProgressText;
 
-                dynamic service = EmbeddedServerManager.CreateReportingService();
+                dynamic service = ReportingServerAdapter.CreateReportingService();
                 
                 //jsreport shortid is case sensitive and _dte.ActiveDocument.Name sometime does not return exact filename value
                 var shortid = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(new FileInfo(_dte.ActiveDocument.Name).Name));
@@ -143,7 +151,7 @@ namespace JsReportVSTools.Impl
 
         public static string GetReportingServiceUrl()
         {
-            return EmbeddedServerManager.EmbeddedServerUri;
+            return ReportingServerAdapter.ServerUri;
         }
 
         public static void OpenHelpers()
@@ -234,9 +242,9 @@ namespace JsReportVSTools.Impl
         {
             if (_cachedRecipes == null)
             {
-                await EmbeddedServerManager.EnsureStartedAsync(fileName);
+                await ReportingServerAdapter.EnsureStartedAsync(fileName);
 
-                dynamic service = EmbeddedServerManager.CreateReportingService();
+                dynamic service = ReportingServerAdapter.CreateReportingService();
 
                 _cachedRecipes = await service.GetRecipesAsync();
             }
@@ -249,8 +257,8 @@ namespace JsReportVSTools.Impl
             if (_cachedSchemas != null)
                 return _cachedSchemas;
 
-            _dte.Solution.SolutionBuild.BuildProject("Debug", EmbeddedServerManager.CurrentProjectName, true);
-            return _cachedSchemas = Directory.GetFiles(EmbeddedServerManager.CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
+            _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerAdapter.CurrentProject.UniqueName, true);
+            return _cachedSchemas = Directory.GetFiles(ReportingServerAdapter.CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
                 .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p)));
         }
 
@@ -264,12 +272,12 @@ namespace JsReportVSTools.Impl
                 msgPump.WaitTitle = "Rendering report";
                 msgPump.WaitText = "This should NOT take several minutes. :)";
 
-                var task = EmbeddedServerManager.EnsureStartedAsync(fileName);
+                var task = ReportingServerAdapter.EnsureStartedAsync(fileName);
                 msgPump.ModalWaitForHandles(((IAsyncResult)task).AsyncWaitHandle);
 
                 await task;
-                
-                dynamic service = EmbeddedServerManager.CreateReportingService();
+
+                dynamic service = ReportingServerAdapter.CreateReportingService();
                 _cachedEngines = await service.GetEnginesAsync();
 
                 return _cachedEngines;
@@ -280,7 +288,7 @@ namespace JsReportVSTools.Impl
 
         public static void OpenEmbeddedServer()
         {
-            System.Diagnostics.Process.Start(EmbeddedServerManager.EmbeddedServerUri);
+            System.Diagnostics.Process.Start(ReportingServerAdapter.ServerUri);
         }
     }
 }

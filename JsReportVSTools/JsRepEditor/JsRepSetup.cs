@@ -74,8 +74,8 @@ namespace JsReportVSTools
             cbRecipe.Text = _state.Recipe;
             cbSchema.Text = _state.Schema;
 
-            lnkServerLocation.Text = SetupHelpers.EmbeddedServerManager.CurrentShadowBinFolder;
-            lnkServerUrl.Text = SetupHelpers.EmbeddedServerManager.EmbeddedServerUri;
+            //lnkServerLocation.Text = SetupHelpers.EmbeddedServerManager.CurrentShadowBinFolder;
+            //lnkServerUrl.Text = SetupHelpers.EmbeddedServerManager.EmbeddedServerUri;
 
             pnlPhantom.Visible = _state.Recipe == "phantom-pdf";
 
