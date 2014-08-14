@@ -80,10 +80,10 @@
     <VSTemplate Include="SchemaItemTemplate.vstemplate">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </VSTemplate>
-    <None Include="ReportItemTemplate.ico">
+    <None Include="Report.jsrep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Report.jsrep">
+    <None Include="ItemTemplate.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="ReportSchema.jsrep.json">

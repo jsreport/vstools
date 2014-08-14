@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using EnvDTE;
-using EnvDTE80;
 using Process = System.Diagnostics.Process;
 
 namespace JsReportVSTools.Impl
@@ -19,51 +13,51 @@ namespace JsReportVSTools.Impl
     /// Responsible for managing lifecycle of jsreport nodejs server.
     /// It always keeps just one server running.
     /// </summary>
-    public class EmbeddedServerManager : MarshalByRefObject, IReportingServerManager
+    public class EmbeddedServerManager : ReportingServerManagerBase, IReportingServerManager
     {
-        private readonly DTE2 _dte;
-        
         private dynamic _embeddedReportingServer;
-        private string _currentShadowBinFolder { get; set; }
-        private readonly Project _activeProject;
+        private string _currentShadowBinFolder;
 
         public string ServerUri
         {
             get { return _embeddedReportingServer.EmbeddedServerUri; }
         }
 
-        public EmbeddedServerManager(DTE2 dte, Project activeProject, string currentShadowBinFolder)
+        public EmbeddedServerManager(string currentShadowBinFolder, object configuration) : base(configuration)
         {
-            _dte = dte;
-            _activeProject = activeProject;
-            
             _currentShadowBinFolder = currentShadowBinFolder;
         }
 
         /// <summary>
         /// Ensures that jsreport server is running for current project
         /// </summary>
-        public async Task EnsureStartedAsync(string fileName = null)
+        public RemoteTask<int> EnsureStartedAsync(string fileName = null)
         {
             if (Process.GetProcessesByName("node").Any(p => GetMainModuleFilePath(p.Id).Contains(_currentShadowBinFolder)))
-                return;
+                return RemoteTask.ServerStart((cts) => Task.FromResult(1));
 
-            await StartAsync(fileName).ConfigureAwait(false);
+            return RemoteTask.ServerStart<int>(async cts =>
+            {
+                await StartAsync(fileName).ConfigureAwait(false);
+                return 0;
+            });
         }
 
-        public Task StopAsync()
+        public RemoteTask<int> StopAsync()
         {
-            return _embeddedReportingServer.StopAsync();
+            return RemoteTask.ServerStart<int>(async cts =>
+            {
+                await _embeddedReportingServer.StopAsync().ConfigureAwait(false);
+                return 0;
+            });
         }
 
         /// <summary>
         /// Creates dynamicly reporting service from bin folder
         /// </summary>
-        public object CreateReportingService()
+        public override object CreateReportingService()
         {
-            Type reportingServiceType =
-                Assembly.LoadFrom(Path.Combine(_currentShadowBinFolder, "jsreport.Client.dll"))
-                    .GetType("jsreport.Client.ReportingService");
+            Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
 
             return Activator.CreateInstance(reportingServiceType, ServerUri);
         }
@@ -74,19 +68,13 @@ namespace JsReportVSTools.Impl
              * because windows will lock these files and we don't want to block visual studio from build.
              * We keep separate temporary directory for every project.
             */
-            
-            string pathToDll = Path.Combine(_currentShadowBinFolder, "jsreport.Embedded.dll");
-
-            if (!File.Exists(pathToDll))
+       
+            if (!File.Exists( Path.Combine(_currentShadowBinFolder, "jsreport.Embedded.dll")))
             {
-                throw new MissingJsReportEmbeddedDllException("jsreport.Embedded.dll was not found in path " + pathToDll +
-                                                              " . Aren't you missing nuget package jsreport.Embedded?");
-                
+                throw new MissingJsReportDllException("Didn't find jsreport.Embedded.dll. Install jsreport.Embedded nuget package or install jsreport.Client and use ReportingStartup.cs to configure remote jsreport.");
             }
 
-            Type embeddedReportingServerType =
-                Assembly.LoadFrom(Path.Combine(_currentShadowBinFolder, "jsreport.Embedded.dll"))
-                    .GetType("jsreport.Embedded.EmbeddedReportingServer");
+            Type embeddedReportingServerType = AppDomain.CurrentDomain.Load("jsreport.Embedded").GetType("jsreport.Embedded.EmbeddedReportingServer");
 
             _embeddedReportingServer = Activator.CreateInstance(embeddedReportingServerType, FindFreePort());
 

@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
-    <Name>JsReport</Name>
-    <Description>Report Item Template</Description>
-    <Icon>ReportItemTemplate.ico</Icon>
+    <Name>jsreport report template</Name>
+    <Description>jsreport report template containing definition, html and js helpers files.</Description>
+    <Icon>ItemTemplate.ico</Icon>
     <TemplateID>0b943c0b-ccf4-4b17-ac25-b79aa97881a6</TemplateID>
     <ProjectType>CSharp</ProjectType>
     <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>

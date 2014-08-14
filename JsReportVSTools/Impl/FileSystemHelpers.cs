@@ -5,7 +5,7 @@ namespace JsReportVSTools.Impl
 {
     public class FileSystemHelpers
     {
-        public static void Copy(string sourceDirName, string destDirName, string pattern = "*.*")
+        public static void Copy(string sourceDirName, string destDirName, string pattern = "*.*", bool overwrite = false)
         {
             // Get the subdirectories for the specified directory.
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -30,7 +30,7 @@ namespace JsReportVSTools.Impl
             {
                 string temppath = Path.Combine(destDirName, file.Name);
 
-                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime)
+                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime || overwrite)
                     try
                     {
                         file.CopyTo(temppath, true);
@@ -46,6 +46,58 @@ namespace JsReportVSTools.Impl
                 string temppath = Path.Combine(destDirName, subdir.Name);
                 Copy(subdir.FullName, temppath);
             }
-        } 
+        }
+
+        public static void DeleteFilesInDirectory(string target_dir, string pattern)
+        {
+            string[] files = Directory.GetFiles(target_dir, pattern);
+            string[] dirs = Directory.GetDirectories(target_dir);
+
+
+            foreach (string f in files)
+            {
+                File.Delete(f);
+            }
+
+            foreach (var dir in dirs)
+            {
+                DeleteFilesInDirectory(dir, pattern);
+            }
+        }
+
+        public static void DeleteDirectory(string target_dir)
+        {
+            for (var i = 0; i < 5; i++)
+            {
+                try
+                {
+                    DeleteDirectoryInner(target_dir);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    
+                }
+            }
+        }
+
+        public static void DeleteDirectoryInner(string target_dir)
+        {
+            string[] files = Directory.GetFiles(target_dir);
+            string[] dirs = Directory.GetDirectories(target_dir);
+
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            foreach (string dir in dirs)
+            {
+                DeleteDirectory(dir);
+            }
+
+            Directory.Delete(target_dir, false);
+        }
     }
 }

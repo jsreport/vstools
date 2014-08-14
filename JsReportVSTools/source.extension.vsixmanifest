@@ -1,9 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="60546472-b12d-4ad6-b5ea-74401d44d9fc" Version="1.0" Language="en-US" Publisher="Jan Blaha" />
-    <DisplayName>JsReportVSTools</DisplayName>
-    <Description>Tools for JsReport</Description>
+    <Identity Id="60546472-b12d-4ad6-b5ea-74401d44d9fc" Version="0.2" Language="en-US" Publisher="Jan Blaha" />
+    <DisplayName>jsreport visual studio tools</DisplayName>
+    <Description xml:space="preserve">Allows to create and preview jsreport report templates from visual studio. Greatly increases productivity when doing pdf reporting.
+</Description>
+    <MoreInfo>http://jsreport.net/</MoreInfo>
+    <Icon>Resources\favicon.ico</Icon>
+    <Tags>pdf report jsreport</Tags>
   </Metadata>
   <Installation InstalledByMsi="false">
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="12.0" />

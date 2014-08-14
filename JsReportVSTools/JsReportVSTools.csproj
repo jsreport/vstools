@@ -193,27 +193,21 @@
   <ItemGroup>
     <Compile Include="Impl\EmbeddedServerManager.cs" />
     <Compile Include="Impl\FileSystemHelpers.cs" />
+    <Compile Include="Impl\IReportingServerFactory.cs" />
     <Compile Include="Impl\IReportingServerManager.cs" />
-    <Compile Include="Impl\MissingJsReportEmbeddedDllException.cs" />
+    <Compile Include="Impl\MissingJsReportDllException.cs" />
     <Compile Include="Impl\PhantomDefinition.cs" />
+    <Compile Include="Impl\ProjectExtensions.cs" />
     <Compile Include="Impl\RemoteServerManager.cs" />
+    <Compile Include="Impl\RemoteTask.cs" />
     <Compile Include="Impl\ReportDefinition.cs" />
-    <Compile Include="Impl\ReportingServerAdapter.cs" />
-    <Compile Include="Intellisense\CompletionSource.cs" />
-    <Compile Include="Intellisense\CompletionSourceProvider.cs" />
-    <Compile Include="Intellisense\HtmlCompletionProvider.cs" />
-    <Compile Include="Intellisense\MyCompletionFactory.cs" />
-    <Compile Include="Intellisense\SimpleHtmlCompletion.cs" />
+    <Compile Include="Impl\ReportingServerManagerAdapter.cs" />
+    <Compile Include="Impl\ReportingServerFactory.cs" />
+    <Compile Include="Impl\ReportingServerManagerBase.cs" />
     <Compile Include="JsRepEditor\JsRepEditorFactory.cs" />
     <Compile Include="JsRepEditor\JsRepEditorPane.cs" />
     <Compile Include="JsRepEditor\JsReportEditor.xaml.cs">
       <DependentUpon>JsReportEditor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="JsRepEditor\JsRepSetup.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="JsRepEditor\JsRepSetup.designer.cs">
-      <DependentUpon>JsRepSetup.cs</DependentUpon>
     </Compile>
     <Compile Include="Impl\SetupHelpers.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -235,20 +229,17 @@
     <Compile Include="JsReportVSToolsPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
-    <None Include="Resources\preview.jpg" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="JsRepEditor\JsRepEditorPane.resx">
       <DependentUpon>JsRepEditorPane.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="JsRepEditor\JsRepSetup.resx">
-      <DependentUpon>JsRepSetup.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>VSPackage.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -292,10 +283,11 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\File.ico" />
-    <Resource Include="Resources\header.png" />
+    <Content Include="Resources\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Resource Include="Resources\js-logo.png" />
-    <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="JsRepEditor\JsReportEditor.xaml">

@@ -43,14 +43,14 @@ namespace JsReportVSTools.JsRepEditor
 
                 RefreshView();
             }
-            catch (MissingJsReportEmbeddedDllException e)
+            catch (MissingJsReportDllException e)
             {
-                MessageBox.Show(e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Window.GetWindow(this), e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Window.GetWindow(this), exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
             }
         }
@@ -99,7 +99,7 @@ namespace JsReportVSTools.JsRepEditor
 
         private async Task FillEngines(string fileName)
         {
-            foreach (string r in await SetupHelpers.GetEngines(fileName).ConfigureAwait(false))
+            foreach (string r in await SetupHelpers.GetEnginesAsync(fileName).ConfigureAwait(false))
             {
                 Dispatcher.Invoke(() => { CbEngine.Items.Add(new CbItem() {Text = r, Id = r}); });
             }

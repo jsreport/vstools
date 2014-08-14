@@ -1,43 +1,41 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
-using EnvDTE;
-using EnvDTE80;
 
 namespace JsReportVSTools.Impl
 {
-    public class RemoteServerManager : IReportingServerManager
+    public class RemoteServerManager : ReportingServerManagerBase, IReportingServerManager
     {
-        private readonly string _binFolder;
-        private readonly dynamic _configuration;
+        private readonly string _remoteServerUri;
+        private readonly string _username;
+        private readonly string _password;
 
-        public RemoteServerManager(string binFolder, object configuration)
+        public RemoteServerManager(string remoteServerUri, string username, string password, object configuration) : base(configuration)
         {
-            _binFolder = binFolder;
-            _configuration = configuration;
+            _remoteServerUri = remoteServerUri;
+            _username = username;
+            _password = password;
         }
 
-        public Task StopAsync()
+        public RemoteTask<int> StopAsync()
         {
-            return Task.FromResult(0);
+            return RemoteTask.ServerStart(cts => Task.FromResult(0));
         }
 
-        public Task EnsureStartedAsync(string fileName = null)
+        public RemoteTask<int> EnsureStartedAsync(string fileName = null)
         {
-            return Task.FromResult(0);
+            return RemoteTask.ServerStart(cts => Task.FromResult(0));
         }
 
-        public object CreateReportingService()
+        public override object CreateReportingService()
         {
-            Type reportingServiceType = Assembly.Load(Path.Combine(_binFolder, "jsreport.Client.dll"))
-                    .GetType("jsreport.Client.ReportingService");
+            Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
 
-            return Activator.CreateInstance(reportingServiceType, ServerUri, _configuration.RemoteServerUsername, _configuration.RemoteServerUsername);
+            return Activator.CreateInstance(reportingServiceType, _remoteServerUri, _username, _password);
         }
 
-        public string ServerUri { get { return _configuration.RemoteServerUri; }}
-
+        public string ServerUri { get { return _remoteServerUri; } }
         
     }
+
+    
 }

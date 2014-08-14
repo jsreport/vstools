@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using System.Xml.Serialization;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
-using Newtonsoft.Json.Linq;
 using Task = System.Threading.Tasks.Task;
 
 namespace JsReportVSTools.Impl
@@ -17,23 +15,10 @@ namespace JsReportVSTools.Impl
     public static class SetupHelpers
     {
         private static DTE2 _dte;
-        private static IEnumerable<string> _cachedRecipes;
-        private static IEnumerable<string> _cachedSchemas;
-        private static IEnumerable<string> _cachedEngines;
         private static CommandEvents _debugCommandEvent;
         private static CommandEvents _cteateProjectItemEvent;
         private static DocumentEvents _documentEvents;
-        public static ReportingServerAdapter ReportingServerAdapter { get; set; }
-
-        public static bool HasCachedEngines
-        {
-            get { return _cachedEngines != null; }
-        }
-
-        public static bool HasCachedRecipes
-        {
-            get { return _cachedRecipes != null; }
-        }
+        public static ReportingServerManagerAdapter ReportingServerManagerAdapter { get; set; }
 
         public static void InitializeListeners()
         {
@@ -53,22 +38,22 @@ namespace JsReportVSTools.Impl
                     }
                 };
 
+            //new project item should clear schemas cache, so new jsrep.json is visible in combo
             _cteateProjectItemEvent = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 220];
-
             _cteateProjectItemEvent.AfterExecute +=
-                (string guid, int id, object @in, object @out) =>
-                {
-                    _cachedSchemas = null;
-                };
+                (string guid, int id, object @in, object @out) => ReportingServerManagerAdapter.ClearCache();
 
+            //saving ReportingStartup.cs should restart current server manager
             _documentEvents = _dte.Events.DocumentEvents;
-            _documentEvents.DocumentSaved += document =>
+            _documentEvents.DocumentSaved += async document =>
             {
-                if (document.FullName.Contains("ReportingStartup"))
-                    ReportingServerAdapter.StopAsync().Wait();
+                if (document.FullName.ToLower().Contains("reportingstartup"))
+                {
+                    await ReportingServerManagerAdapter.StopAsync();
+                }
             };
 
-            ReportingServerAdapter = new ReportingServerAdapter(_dte);
+            ReportingServerManagerAdapter = new ReportingServerManagerAdapter(_dte);
         }
 
         private static async Task DoPreviewActiveItemInner(CommonMessagePump msgPump)
@@ -80,7 +65,7 @@ namespace JsReportVSTools.Impl
                 msgPump.ProgressText = "Preparing jsreport server";
                 msgPump.StatusBarText = msgPump.ProgressText;
 
-                await ReportingServerAdapter.EnsureStartedAsync().ConfigureAwait(false);
+                await ReportingServerManagerAdapter.EnsureStartedAsync().ConfigureAwait(false);
 
                 msgPump.CurrentStep = 2;
                 msgPump.ProgressText = "Synchronizing templates";
@@ -88,19 +73,21 @@ namespace JsReportVSTools.Impl
 
                 _dte.ExecuteCommand("File.SaveAll");
 
-                _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerAdapter.CurrentProject.UniqueName, true);
+                _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerManagerAdapter.CurrentProject.UniqueName, true);
 
-                await ReportingServerAdapter.SynchronizeTemplatesAsync().ConfigureAwait(false);
+                await ReportingServerManagerAdapter.SynchronizeTemplatesAsync().ConfigureAwait(false);
 
                 msgPump.CurrentStep = 3;
                 msgPump.ProgressText = "Rendering template in jsreport";
                 msgPump.StatusBarText = msgPump.ProgressText;
 
-                dynamic service = ReportingServerAdapter.CreateReportingService();
-                
+
+                string definitionPath = _dte.ActiveDocument.FullName.RemoveFromEnd(".html").RemoveFromEnd(".js");
+                var rd = ReadReportDefinition(definitionPath);
+
                 //jsreport shortid is case sensitive and _dte.ActiveDocument.Name sometime does not return exact filename value
                 var shortid = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(new FileInfo(_dte.ActiveDocument.Name).Name));
-                dynamic report = await service.RenderAsync(shortid, null);
+                dynamic report = await ReportingServerManagerAdapter.RenderAsync(shortid, rd.Schema);
 
                 msgPump.CurrentStep = 4;
                 msgPump.ProgressText = "Opening report";
@@ -116,16 +103,13 @@ namespace JsReportVSTools.Impl
 
                 OpenFileInBrowser(tempFile);
             }
-            catch (MissingJsReportEmbeddedDllException e)
+            catch (MissingJsReportDllException e)
             {
                 MessageBox.Show(e.Message, "jsreport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception e)
             {
-                dynamic ed = e;
-                //is it a jsrepo
-                var message = e.GetType().Name == "JsReportException" ? ed.ResponseErrorMessage : e.ToString();
-                MessageBox.Show(message, "Error when processing template", MessageBoxButtons.OK,
+                MessageBox.Show(e.Message, "Error when processing template", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
@@ -151,7 +135,7 @@ namespace JsReportVSTools.Impl
 
         public static string GetReportingServiceUrl()
         {
-            return ReportingServerAdapter.ServerUri;
+            return ReportingServerManagerAdapter.ServerUri;
         }
 
         public static void OpenHelpers()
@@ -173,7 +157,7 @@ namespace JsReportVSTools.Impl
         {
             var fileNameToSearch = rd.Schema + ".jsrep.json";
 
-            var item = GetAllProjectItemsFromActiveProject().SingleOrDefault(p => p.Name == fileNameToSearch);
+            var item = _dte.ActiveDocument.ProjectItem.ContainingProject.GetAllProjectItems().SingleOrDefault(p => p.Name == fileNameToSearch);
 
             if (item != null)
             {
@@ -181,32 +165,6 @@ namespace JsReportVSTools.Impl
                 window.Activate();
             }
         }
-
-        private static IEnumerable<ProjectItem> GetAllProjectItemsFromActiveProject()
-        {
-            var rootItems = _dte.ActiveDocument.ProjectItem.ContainingProject.ProjectItems.Cast<ProjectItem>().ToList();
-            var result = new List<ProjectItem>(rootItems);
-
-
-            foreach (var item in rootItems)
-            {
-                 result.AddRange(GetAllProjectItemsFromActiveProjectInner(item));
-            }
-
-            return result;
-        } 
-
-        private static IEnumerable<ProjectItem> GetAllProjectItemsFromActiveProjectInner(ProjectItem item)
-        {
-            var result = new List<ProjectItem>() {item};
-
-            foreach (ProjectItem innerItem in item.ProjectItems)
-            {
-                result.AddRange(GetAllProjectItemsFromActiveProjectInner(innerItem));    
-            }
-
-            return result;
-        } 
 
         public static void OpenFileInBrowser(string path)
         {
@@ -238,57 +196,33 @@ namespace JsReportVSTools.Impl
             }
         }
 
-        public static async Task<IEnumerable<string>> GetRecipesAsync(string fileName)
+        public static Task<IEnumerable<string>> GetRecipesAsync(string fileName)
         {
-            if (_cachedRecipes == null)
-            {
-                await ReportingServerAdapter.EnsureStartedAsync(fileName);
-
-                dynamic service = ReportingServerAdapter.CreateReportingService();
-
-                _cachedRecipes = await service.GetRecipesAsync();
-            }
-
-            return _cachedRecipes;
+            return ReportingServerManagerAdapter.GetRecipesAsync(fileName);
         }
 
         public static IEnumerable<string> GetSchemas()
         {
-            if (_cachedSchemas != null)
-                return _cachedSchemas;
-
-            _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerAdapter.CurrentProject.UniqueName, true);
-            return _cachedSchemas = Directory.GetFiles(ReportingServerAdapter.CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
-                .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p)));
+            return ReportingServerManagerAdapter.GetSchemas();
         }
 
-        public static async Task<IEnumerable<string>> GetEngines(string fileName)
+        public static Task<IEnumerable<string>> GetEnginesAsync(string fileName)
         {
-            if (_cachedEngines == null)
-            {
-                var msgPump = new CommonMessagePump();
-                msgPump.AllowCancel = false;
-                msgPump.EnableRealProgress = true;
-                msgPump.WaitTitle = "Rendering report";
-                msgPump.WaitText = "This should NOT take several minutes. :)";
-
-                var task = ReportingServerAdapter.EnsureStartedAsync(fileName);
-                msgPump.ModalWaitForHandles(((IAsyncResult)task).AsyncWaitHandle);
-
-                await task;
-
-                dynamic service = ReportingServerAdapter.CreateReportingService();
-                _cachedEngines = await service.GetEnginesAsync();
-
-                return _cachedEngines;
-            }
-            
-            return _cachedEngines;
+            return ReportingServerManagerAdapter.GetEnginesAsync(fileName);
         }
 
         public static void OpenEmbeddedServer()
         {
-            System.Diagnostics.Process.Start(ReportingServerAdapter.ServerUri);
+            System.Diagnostics.Process.Start(ReportingServerManagerAdapter.ServerUri);
+        }
+
+        private static string RemoveFromEnd(this string s, string suffix)
+        {
+            if (s.EndsWith(suffix))
+            {
+                return s.Substring(0, s.Length - suffix.Length);
+            }
+            return s;
         }
     }
 }

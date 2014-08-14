@@ -35,7 +35,7 @@ namespace JsReportVSTools
               ProjectGuid = "{A2FE74E1-B743-11d0-AE1A-00A0C90FFFC3}", 
               TemplateDir = "JsRepEditor/Templates", 
               NameResourceID = 105,
-              DefaultName = "JsReportVSTools")]
+              DefaultName = "jsreport editor")]
     [ProvideKeyBindingTable(GuidList.guidJsReportVSToolsEditorFactoryString, 102)]
     // Our Editor supports Find and Replace therefore we need to declare support for LOGVIEWID_TextView.
     // This attribute declares that your EditorPane class implements IVsCodeWindow interface
@@ -81,46 +81,9 @@ namespace JsReportVSTools
             base.RegisterEditorFactory(new JsRepEditorFactory(this));
 
             SetupHelpers.InitializeListeners();
-
-
-            //var appDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString(), null, new AppDomainSetup
-            //{
-            //    ApplicationBase = @"C:\Users\jan blaha\Documents\Visual Studio 2013\Projects\ConsoleApplication16\ConsoleApplication16\bin\Debug",
-            //    PrivateBinPath = @"C:\Users\jan blaha\Documents\Visual Studio 2013\Projects\ConsoleApplication16\ConsoleApplication16\bin\Debug",
-            //    ShadowCopyFiles = "true",
-            //    LoaderOptimization = LoaderOptimization.MultiDomainHost
-            //});
-
-            //appDomain.AssemblyResolve += (sender, args) =>
-            //{
-            //    return null;
-            //};
-
-            //var type = typeof (AssemblyAnalyzer);
-            //var analyzer = (IAssemblyAnalyzer) appDomain.CreateInstanceFromAndUnwrap(type.Assembly.Location, type.FullName);
-            //var result = analyzer.Analyze("jsreport.Client");
- 
-            //AppDomain.Unload(appDomain);
         }
 
         #endregion
 
-    }
-
-    internal interface IAssemblyAnalyzer
-    {
-        string Analyze(string assemblyPath);
-    }
-
-    internal class AssemblyAnalyzer : MarshalByRefObject, IAssemblyAnalyzer
-    {
-        public string Analyze(string assemblyName)
-        {
-            Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
-
-            dynamic rs = Activator.CreateInstance(reportingServiceType, "http://localhost:2000");
-
-            return rs.GetServerVersionAsync().Result;
-        }
     }
 }
