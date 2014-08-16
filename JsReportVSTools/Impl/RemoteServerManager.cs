@@ -21,7 +21,7 @@ namespace JsReportVSTools.Impl
             return RemoteTask.ServerStart(cts => Task.FromResult(0));
         }
 
-        public RemoteTask<int> EnsureStartedAsync(string fileName = null)
+        public RemoteTask<int> EnsureStartedAsync()
         {
             return RemoteTask.ServerStart(cts => Task.FromResult(0));
         }

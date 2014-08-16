@@ -5,7 +5,7 @@ namespace JsReportVSTools.Impl
 {
     public class FileSystemHelpers
     {
-        public static void Copy(string sourceDirName, string destDirName, string pattern = "*.*", bool overwrite = false)
+        public static void Copy(string sourceDirName, string destDirName, string pattern = "*.*", bool forceOverwrite = false)
         {
             // Get the subdirectories for the specified directory.
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -30,7 +30,7 @@ namespace JsReportVSTools.Impl
             {
                 string temppath = Path.Combine(destDirName, file.Name);
 
-                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime || overwrite)
+                if (!File.Exists(temppath) || new FileInfo(temppath).LastWriteTime < file.LastWriteTime || forceOverwrite)
                     try
                     {
                         file.CopyTo(temppath, true);

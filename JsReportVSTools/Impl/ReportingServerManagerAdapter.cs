@@ -26,7 +26,7 @@ namespace JsReportVSTools.Impl
         private AppDomain _currentAppDomain;
         private bool _overwriteTemplatesDuringNextSync;
         private IEnumerable<string> _cachedRecipes;
-        private IEnumerable<string> _cachedSchemas;
+        private IEnumerable<string> _cachedSampleData;
         private IEnumerable<string> _cachedEngines;
         private FileSystemWatcher _clientWatcher;
 
@@ -52,11 +52,33 @@ namespace JsReportVSTools.Impl
                 await StopAsync();
             }
 
-            _serverManager = _serverManager ?? CreateServerManager(fileName);
+            try
+            {
+                _serverManager = _serverManager ?? CreateServerManager(fileName);
+
+                await RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(), CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                StopAsync();
+                throw;
+            }
+        }
+
+        private async Task EnsureStartedAsyncInner(string fileName = null)
+        {
+            //we keep just one instance of the server manager per projec
+            if (CurrentProject != null && GetActiveProject(fileName).UniqueName != GetCurrentProjectUniqueNameSafely())
+            {
+                _overwriteTemplatesDuringNextSync = true;
+                await StopAsync();
+            }
 
             try
             {
-                await RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(fileName), CancellationToken.None).ConfigureAwait(false);
+                _serverManager = _serverManager ?? CreateServerManager(fileName);
+          
+                await RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(), CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -103,7 +125,7 @@ namespace JsReportVSTools.Impl
         {
             _cachedEngines = null;
             _cachedRecipes = null;
-            _cachedSchemas = null;
+            _cachedSampleData = null;
         }
 
         private IReportingServerManager CreateServerManager(string fileName)
@@ -121,13 +143,19 @@ namespace JsReportVSTools.Impl
             }
 
             CurrentProject = GetActiveProject(fileName);
+            
             _dte.Solution.SolutionBuild.BuildProject("Debug", CurrentProject.UniqueName, true);
+            if (_dte.Solution.SolutionBuild.LastBuildInfo > 0)
+            {
+                throw new WeakJsReportException("Fix build errors first"); 
+            }
+
             
 
             if (!File.Exists(Path.Combine(CurrentBinFolder, "jsreport.Client.dll")))
             {
-                throw new MissingJsReportDllException(
-                    "Missing jsreport.Client.dll arent you missing nuget package? \n location: " + CurrentBinFolder);
+                throw new WeakJsReportException(
+                    "Missing jsreport.Client.dll. Install jsreport.Embedded nuget package or install jsreport.Client and use ReportingStartup.cs to configure remote jsreport.");
             }
 
 
@@ -185,16 +213,16 @@ namespace JsReportVSTools.Impl
             return _cachedEngines;
         }
 
-        public IEnumerable<string> GetSchemas()
+        public IEnumerable<string> GetSampleDataItems()
         {
-            if (_cachedSchemas != null)
-                return _cachedSchemas;
+            if (_cachedSampleData != null)
+                return _cachedSampleData;
 
             _dte.Solution.SolutionBuild.BuildProject("Debug", CurrentProject.UniqueName, true);
-            var schemasFromFiles = Directory.GetFiles(CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
+            var sampleDataFromFiles = Directory.GetFiles(CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
                 .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p))).Distinct();
 
-            return _cachedSchemas = schemasFromFiles.Concat(_serverManager.Schemas).ToList();
+            return _cachedSampleData = sampleDataFromFiles.Concat(_serverManager.SampleDataItems).ToList();
         }
 
         public async Task<int> SynchronizeTemplatesAsync()
@@ -222,10 +250,6 @@ namespace JsReportVSTools.Impl
         private void CopyToShadowFolder()
         {
             CurrentShadowBinFolder = Path.Combine(Path.GetTempPath(), "jsreport-embedded");
-
-            if (Directory.Exists(CurrentShadowBinFolder))
-                FileSystemHelpers.DeleteDirectory(CurrentShadowBinFolder);
-            
             FileSystemHelpers.Copy(CurrentBinFolder, CurrentShadowBinFolder);
         }
 
@@ -248,9 +272,9 @@ namespace JsReportVSTools.Impl
             get { return Path.Combine(new FileInfo(CurrentProject.FullName).DirectoryName, "Bin", "Debug"); }
         }
 
-        public async Task<object> RenderAsync(string shortid, string schemaName)
+        public async Task<object> RenderAsync(string shortid, string sampleData)
         {
-            return await RemoteTask.ClientComplete(_serverManager.RenderAsync(shortid, schemaName), CancellationToken.None).ConfigureAwait(false);
+            return await RemoteTask.ClientComplete(_serverManager.RenderAsync(shortid, sampleData), CancellationToken.None).ConfigureAwait(false);
         }
     }
 }

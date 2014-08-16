@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
-    <Name>jsreport data schema</Name>
-    <Description>jsreport data schema used as sample values for previewing templates</Description>
+    <Name>jsreport sample data</Name>
+    <Description>jsreport sample data used for previewing templates</Description>
     <Icon>ItemTemplate.ico</Icon>
     <TemplateID>0b943c0b-ccf4-4b17-ac25-b79aa97881a7</TemplateID>
     <ProjectType>CSharp</ProjectType>
     <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
-    <DefaultName>ReportSchema.json</DefaultName>
+    <DefaultName>ReportSampleData.json</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem SubType="Code" TargetFileName="$fileinputname$.jsrep.json" ReplaceParameters="true">ReportSchema.jsrep.json</ProjectItem>
+    <ProjectItem SubType="Code" TargetFileName="$fileinputname$.jsrep.json" ReplaceParameters="true">ReportSampleData.jsrep.json</ProjectItem>
   </TemplateContent>
   <WizardExtension>
     <Assembly>Wizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3318b452adb50aef</Assembly>

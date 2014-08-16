@@ -77,16 +77,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="SchemaItemTemplate.vstemplate">
+    <VSTemplate Include="SampleDataItemTemplate.vstemplate">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </VSTemplate>
     <None Include="Report.jsrep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
-    <None Include="ItemTemplate.ico">
+    <Content Include="ItemTemplate.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Content Include="ReportSchema.jsrep.json">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ReportSampleData.jsrep.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

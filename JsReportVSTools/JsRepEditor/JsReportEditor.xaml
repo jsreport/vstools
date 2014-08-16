@@ -67,7 +67,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button x:Name="BtnContent" Margin="10 0 0 0" Click="BtnContent_Click">Go to content</Button>
                         <Button x:Name="BtnHelpers" Margin="10 0 0 0" Click="BtnHelpers_Click">Go to helpers</Button>
-                        <Button x:Name="BtnSchema" Margin="10 0 0 0" Click="BtnSchema_Click">Go to schema</Button>
+                        <Button x:Name="BtnSampleData" Margin="10 0 0 0" Click="BtnSampleData_Click">Go to sample data</Button>
                     </StackPanel>
                 </DockPanel>
                 
@@ -91,10 +91,10 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Schema"
+                            <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Sample data"
                                        Style="{StaticResource HeaderTextBlockStyle}" />
-                            <ComboBox x:Name="CbSchema" DisplayMemberPath="Text"
-                                      SelectedValuePath="Id" SelectionChanged="CbSchema_SelectionChanged" />
+                            <ComboBox x:Name="CbSampleData" DisplayMemberPath="Text"
+                                      SelectedValuePath="Id" SelectionChanged="CbSampleData_SelectionChanged" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -187,8 +187,8 @@
 
                                 <TextBlock Margin="0 20 0 10" HorizontalAlignment="Center" Text="Header Content"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox MinLines="5" Width="350" x:Name="TbHeader"
-                                         TextChanged="TbHeader_TextChanged" />
+                                <TextBox MinLines="5" Width="350" x:Name="TbHeader" 
+                                         TextChanged="TbHeader_TextChanged" AcceptsReturn="True" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
@@ -201,7 +201,7 @@
                                 <TextBlock Margin="0 20 0 10" HorizontalAlignment="Center" Text="Footer Content"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
                                 <TextBox MinLines="5" Width="350" x:Name="TbFooter"
-                                         TextChanged="TbFooter_TextChanged" />
+                                         TextChanged="TbFooter_TextChanged" AcceptsReturn="True" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                     </Grid>

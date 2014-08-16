@@ -40,9 +40,9 @@ namespace JsReportVSTools.Impl
             {
                 if (_configuration != null)
                 {
-                    foreach (KeyValuePair<string, object> schema in _configuration.Schemas)
+                    foreach (KeyValuePair<string, object> sampleData in _configuration.SampleData)
                     {
-                        await rs.CreateOrUpdateSchema(schema.Key, JsonConvert.SerializeObject(schema.Value));
+                        await rs.CreateOrUpdateSampleData(sampleData.Key, JsonConvert.SerializeObject(sampleData.Value));
                     }
                 }
 
@@ -51,13 +51,13 @@ namespace JsReportVSTools.Impl
             });
         }
 
-        public RemoteTask<object> RenderAsync(string shortid, string schemaName)
+        public RemoteTask<object> RenderAsync(string shortid, string sampleDataName)
         {
             dynamic rs = CreateReportingService();
 
             return RemoteTask.ServerStart<object>(async cts =>
             {
-                dynamic report = await rs.RenderAsync(shortid, PrepareSchema(schemaName));
+                dynamic report = await rs.RenderAsync(shortid, PrepareSampleData(sampleDataName));
                 return new Report
                 {
                     Content = report.Content,
@@ -66,29 +66,29 @@ namespace JsReportVSTools.Impl
             });
         }
 
-        public IEnumerable<string> Schemas
+        public IEnumerable<string> SampleDataItems
         {
             get
             {
                 if (_configuration == null)
                     return Enumerable.Empty<string>();
 
-                IEnumerable<string> staticSchemas = _configuration.Schemas.Keys;
-                IEnumerable<string> dynamicSchemas = _configuration.DynamicSchemas.Keys;
+                IEnumerable<string> staticSampleDataItems = _configuration.SampleData.Keys;
+                IEnumerable<string> dynamicSampleDataItems = _configuration.DynamicSampleData.Keys;
 
-                return staticSchemas.Concat(dynamicSchemas).ToList();
+                return staticSampleDataItems.Concat(dynamicSampleDataItems).ToList();
             }
         }
 
-        private object PrepareSchema(string schemaName)
+        private object PrepareSampleData(string sampleDataName)
         {
-            if (_configuration == null || string.IsNullOrEmpty(schemaName))
+            if (_configuration == null || string.IsNullOrEmpty(sampleDataName))
                 return null;
 
-            if (!_configuration.DynamicSchemas.ContainsKey(schemaName))
+            if (!_configuration.DynamicSampleData.ContainsKey(sampleDataName))
                 return null;
 
-            return _configuration.DynamicSchemas[schemaName]();
+            return _configuration.DynamicSampleData[sampleDataName]();
         }
 
         //the MarshalByRefObject has some strange expiracy time so we need to say that these objects should stay forever active

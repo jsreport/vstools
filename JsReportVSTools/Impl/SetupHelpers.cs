@@ -74,6 +74,11 @@ namespace JsReportVSTools.Impl
                 _dte.ExecuteCommand("File.SaveAll");
 
                 _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerManagerAdapter.CurrentProject.UniqueName, true);
+                if (_dte.Solution.SolutionBuild.LastBuildInfo > 0)
+                {
+                    MessageBox.Show("Fix build errors first", "jsreport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 await ReportingServerManagerAdapter.SynchronizeTemplatesAsync().ConfigureAwait(false);
 
@@ -86,8 +91,8 @@ namespace JsReportVSTools.Impl
                 var rd = ReadReportDefinition(definitionPath);
 
                 //jsreport shortid is case sensitive and _dte.ActiveDocument.Name sometime does not return exact filename value
-                var shortid = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(new FileInfo(_dte.ActiveDocument.Name).Name));
-                dynamic report = await ReportingServerManagerAdapter.RenderAsync(shortid, rd.Schema);
+                var shortid = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(_dte.ActiveDocument.ProjectItem.Name));
+                dynamic report = await ReportingServerManagerAdapter.RenderAsync(shortid, rd.SampleData);
 
                 msgPump.CurrentStep = 4;
                 msgPump.ProgressText = "Opening report";
@@ -103,7 +108,7 @@ namespace JsReportVSTools.Impl
 
                 OpenFileInBrowser(tempFile);
             }
-            catch (MissingJsReportDllException e)
+            catch (WeakJsReportException e)
             {
                 MessageBox.Show(e.Message, "jsreport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -133,11 +138,6 @@ namespace JsReportVSTools.Impl
             return s.Deserialize(new StreamReader(fileName)) as ReportDefinition;
         }
 
-        public static string GetReportingServiceUrl()
-        {
-            return ReportingServerManagerAdapter.ServerUri;
-        }
-
         public static void OpenHelpers()
         {
             ProjectItem item = _dte.Solution.FindProjectItem(_dte.ActiveDocument.FullName.Replace(".jsrep", ".jsrep.js"));
@@ -153,9 +153,9 @@ namespace JsReportVSTools.Impl
             window.Activate();
         }
 
-        public static void OpenSchema(ReportDefinition rd)
+        public static void OpenSampleData(ReportDefinition rd)
         {
-            var fileNameToSearch = rd.Schema + ".jsrep.json";
+            var fileNameToSearch = rd.SampleData + ".jsrep.json";
 
             var item = _dte.ActiveDocument.ProjectItem.ContainingProject.GetAllProjectItems().SingleOrDefault(p => p.Name == fileNameToSearch);
 
@@ -201,9 +201,9 @@ namespace JsReportVSTools.Impl
             return ReportingServerManagerAdapter.GetRecipesAsync(fileName);
         }
 
-        public static IEnumerable<string> GetSchemas()
+        public static IEnumerable<string> GetSampleData()
         {
-            return ReportingServerManagerAdapter.GetSchemas();
+            return ReportingServerManagerAdapter.GetSampleDataItems();
         }
 
         public static Task<IEnumerable<string>> GetEnginesAsync(string fileName)
@@ -211,7 +211,7 @@ namespace JsReportVSTools.Impl
             return ReportingServerManagerAdapter.GetEnginesAsync(fileName);
         }
 
-        public static void OpenEmbeddedServer()
+        public static void OpenJsReportInBrowser()
         {
             System.Diagnostics.Process.Start(ReportingServerManagerAdapter.ServerUri);
         }

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using EnvDTE;
 using JsReportVSTools.Impl;
 
 namespace JsReportVSTools.JsRepEditor
@@ -23,8 +24,9 @@ namespace JsReportVSTools.JsRepEditor
             InitializeComponent();
         }
 
-        public async void LoadStateFromFile(string fileName)
+        public async Task LoadStateFromFile(string fileName)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             _state = SetupHelpers.ReadReportDefinition(fileName);
 
             try
@@ -32,26 +34,30 @@ namespace JsReportVSTools.JsRepEditor
                 await FillEngines(fileName);
                 await FillRecipes(fileName);
 
-                SetupHelpers.GetSchemas()
+                SetupHelpers.GetSampleData()
                     .ToList()
                     .ForEach(s =>
                     {
                         var item = new CbItem() {Text = s, Id = s};
-                        if (!CbSchema.Items.Contains(item))
-                            CbSchema.Items.Add(item);
+                        if (!CbSampleData.Items.Contains(item))
+                            CbSampleData.Items.Add(item);
                     });
 
                 RefreshView();
             }
-            catch (MissingJsReportDllException e)
+            catch (WeakJsReportException e)
             {
-                MessageBox.Show(Window.GetWindow(this), e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
             }
             catch (Exception exception)
             {
-                MessageBox.Show(Window.GetWindow(this), exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
             }
         }
 
@@ -59,7 +65,7 @@ namespace JsReportVSTools.JsRepEditor
         {
             CbEngine.Text = _state.Engine;
             CbRecipe.Text = _state.Recipe;
-            CbSchema.Text = _state.Schema;
+            CbSampleData.Text = _state.SampleData;
 
             PnlPhantom.Visibility = _state.Recipe == "phantom-pdf" ? Visibility.Visible : Visibility.Hidden;
 
@@ -123,12 +129,12 @@ namespace JsReportVSTools.JsRepEditor
             NotifyChange();
         }
 
-        private void CbSchema_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CbSampleData_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count != 1)
                 return;
 
-            _state.Schema = ((CbItem) e.AddedItems[0]).Text;
+            _state.SampleData = ((CbItem) e.AddedItems[0]).Text;
 
             NotifyChange();
         }
@@ -223,19 +229,19 @@ namespace JsReportVSTools.JsRepEditor
             SetupHelpers.OpenHelpers();
         }
 
-        private void BtnSchema_Click(object sender, RoutedEventArgs e)
+        private void BtnSampleData_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(_state.Schema))
+            if (string.IsNullOrEmpty(_state.SampleData))
                 return;
 
-            SetupHelpers.OpenSchema(_state);
+            SetupHelpers.OpenSampleData(_state);
         }
 
         private void Image_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
             {
-                SetupHelpers.OpenEmbeddedServer();
+                SetupHelpers.OpenJsReportInBrowser();
             }
         }
     }
