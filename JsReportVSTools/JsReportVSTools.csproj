@@ -191,6 +191,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Impl\AsyncLock.cs" />
     <Compile Include="Impl\EmbeddedServerManager.cs" />
     <Compile Include="Impl\FileSystemHelpers.cs" />
     <Compile Include="Impl\IReportingServerFactory.cs" />
@@ -210,6 +211,8 @@
       <DependentUpon>JsReportEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Impl\SetupHelpers.cs" />
+    <Compile Include="JsRepEditor\WatermarkAdorner.cs" />
+    <Compile Include="JsRepEditor\WatermarkService.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -275,6 +278,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Resources\favicon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>

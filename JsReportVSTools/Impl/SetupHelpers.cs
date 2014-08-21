@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace JsReportVSTools.Impl
         private static CommandEvents _debugCommandEvent;
         private static CommandEvents _cteateProjectItemEvent;
         private static DocumentEvents _documentEvents;
+        private static bool _configReloadInProgress;
+        private static readonly object _locker = new object();
         public static ReportingServerManagerAdapter ReportingServerManagerAdapter { get; set; }
 
         public static void InitializeListeners()
@@ -40,8 +43,18 @@ namespace JsReportVSTools.Impl
 
             //new project item should clear schemas cache, so new jsrep.json is visible in combo
             _cteateProjectItemEvent = _dte.Events.CommandEvents["{5EFC7975-14BC-11CF-9B2B-00AA00573819}", 220];
-            _cteateProjectItemEvent.AfterExecute +=
-                (string guid, int id, object @in, object @out) => ReportingServerManagerAdapter.ClearCache();
+            _cteateProjectItemEvent.AfterExecute += (string guid, int id, object @in, object @out) =>
+            {
+                ReportingServerManagerAdapter.ClearCache();
+
+                foreach (Window window in _dte.Windows)
+                {
+                    var jsrepEditorPane = window.Object as JsRepEditorPane;
+
+                    if (jsrepEditorPane != null)
+                        jsrepEditorPane.MarkRerfeshRequired();
+                }
+            };
 
             //saving ReportingStartup.cs should restart current server manager
             _documentEvents = _dte.Events.DocumentEvents;
@@ -49,7 +62,32 @@ namespace JsReportVSTools.Impl
             {
                 if (document.FullName.ToLower().Contains("reportingstartup"))
                 {
-                    await ReportingServerManagerAdapter.StopAsync();
+                    lock (_locker)
+                    {
+                        if (_configReloadInProgress)
+                            return;
+
+                        _configReloadInProgress = true;
+                    }
+
+                    try
+                    {
+                        Trace.TraceInformation("Reloading because of reportingstartup");
+                        await ReportingServerManagerAdapter.StopAsync();
+
+                        foreach (Window window in _dte.Windows)
+                        {
+                            var jsrepEditorPane = window.Object as JsRepEditorPane;
+
+                            if (jsrepEditorPane != null)
+                                 jsrepEditorPane.MarkRerfeshRequired();
+                        }
+                    }
+                    finally
+                    {
+                        _configReloadInProgress = false;
+                        Trace.TraceInformation("Reloading done");
+                    }
                 }
             };
 
@@ -73,7 +111,7 @@ namespace JsReportVSTools.Impl
 
                 _dte.ExecuteCommand("File.SaveAll");
 
-                _dte.Solution.SolutionBuild.BuildProject("Debug", ReportingServerManagerAdapter.CurrentProject.UniqueName, true);
+                _dte.Solution.SolutionBuild.BuildProject(_dte.Solution.SolutionBuild.ActiveConfiguration.Name, ReportingServerManagerAdapter.CurrentProject.UniqueName, true);
                 if (_dte.Solution.SolutionBuild.LastBuildInfo > 0)
                 {
                     MessageBox.Show("Fix build errors first", "jsreport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -157,7 +195,7 @@ namespace JsReportVSTools.Impl
         {
             var fileNameToSearch = rd.SampleData + ".jsrep.json";
 
-            var item = _dte.ActiveDocument.ProjectItem.ContainingProject.GetAllProjectItems().SingleOrDefault(p => p.Name == fileNameToSearch);
+            var item = _dte.ActiveDocument.ProjectItem.ContainingProject.GetAllProjectItems().FirstOrDefault(p => p.Name == fileNameToSearch);
 
             if (item != null)
             {
@@ -201,7 +239,7 @@ namespace JsReportVSTools.Impl
             return ReportingServerManagerAdapter.GetRecipesAsync(fileName);
         }
 
-        public static IEnumerable<string> GetSampleData()
+        public static Task<IEnumerable<string>> GetSampleData()
         {
             return ReportingServerManagerAdapter.GetSampleDataItems();
         }

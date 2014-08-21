@@ -42,7 +42,11 @@ namespace JsReportVSTools.Impl
                 {
                     foreach (KeyValuePair<string, object> sampleData in _configuration.SampleData)
                     {
-                        await rs.CreateOrUpdateSampleData(sampleData.Key, JsonConvert.SerializeObject(sampleData.Value));
+                        await rs.CreateOrUpdateSampleData(sampleData.Key, JsonConvert.SerializeObject(sampleData.Value, new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize,
+                            PreserveReferencesHandling = PreserveReferencesHandling.All
+                        }));
                     }
                 }
 
@@ -59,10 +63,10 @@ namespace JsReportVSTools.Impl
             {
                 dynamic report = await rs.RenderAsync(shortid, PrepareSampleData(sampleDataName));
                 return new Report
-                {
-                    Content = report.Content,
-                    FileExtension = report.FileExtension
-                };
+                   {
+                       Content = report.Content,
+                       FileExtension = report.FileExtension
+                   };
             });
         }
 

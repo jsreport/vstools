@@ -34,7 +34,7 @@ namespace JsReportVSTools.Impl
         /// </summary>
         public RemoteTask<int> EnsureStartedAsync()
         {
-            if (_isRunning)
+            if (_isRunning && Process.GetProcessesByName("node").Any(p => GetMainModuleFilePath(p.Id).Contains(_currentShadowBinFolder)))
                 return RemoteTask.ServerStart((cts) => Task.FromResult(1));
 
             _isRunning = true;
@@ -63,6 +63,23 @@ namespace JsReportVSTools.Impl
             Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
 
             return Activator.CreateInstance(reportingServiceType, ServerUri);
+        }
+
+        private string GetMainModuleFilePath(int processId)
+        {
+            string wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process WHERE ProcessId = " + processId;
+            using (var searcher = new ManagementObjectSearcher(wmiQueryString))
+            {
+                using (var results = searcher.Get())
+                {
+                    ManagementObject mo = results.Cast<ManagementObject>().FirstOrDefault();
+                    if (mo != null)
+                    {
+                        return (string)mo["ExecutablePath"];
+                    }
+                }
+            }
+            return "";
         }
       
         private async Task StartAsync()

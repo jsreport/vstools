@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:jsRepEditor="clr-namespace:JsReportVSTools.JsRepEditor"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="800">
     <UserControl.Resources>
@@ -124,8 +125,14 @@
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Margin"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox x:Name="TbMargin"
-                                         TextChanged="TbMargin_TextChanged" />
+
+                                <AdornerDecorator>
+                                    <TextBox x:Name="TbMargin" TextChanged="TbMargin_TextChanged" >
+                                        <jsRepEditor:WatermarkService.Watermark>
+                                            <TextBlock>5 [cm | px]</TextBlock>
+                                        </jsRepEditor:WatermarkService.Watermark>
+                                     </TextBox>
+                                </AdornerDecorator>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -155,16 +162,27 @@
                                         HorizontalAlignment="Center">
                                 <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Paper Width"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox x:Name="TbPaperWidth"
-                                         TextChanged="TbPaperWidth_TextChanged" />
+                                <AdornerDecorator>
+                                    <TextBox x:Name="TbPaperWidth" TextChanged="TbPaperWidth_TextChanged" >
+                                    <jsRepEditor:WatermarkService.Watermark>
+                                            <TextBlock>5 [cm | px]</TextBlock>
+                                        </jsRepEditor:WatermarkService.Watermark>
+                                    </TextBox>
+                                </AdornerDecorator>
                             </StackPanel>
 
                             <StackPanel Margin="0 10 0 0" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
                                         HorizontalAlignment="Center">
                                 <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Paper Height"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox x:Name="TbPaperHeight"
-                                         TextChanged="TbPaperHeight_TextChanged" />
+
+                                <AdornerDecorator>
+                                    <TextBox x:Name="TbPaperHeight" TextChanged="TbPaperHeight_TextChanged" >
+                                        <jsRepEditor:WatermarkService.Watermark>
+                                            <TextBlock>5 [cm | px]</TextBlock>
+                                        </jsRepEditor:WatermarkService.Watermark>
+                                    </TextBox>
+                                </AdornerDecorator>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -182,8 +200,15 @@
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Header Height"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox x:Name="TbHeaderHeight"
-                                         TextChanged="TbHeaderHeight_TextChanged" />
+
+                                <AdornerDecorator>
+                                    <TextBox x:Name="TbHeaderHeight" TextChanged="TbHeaderHeight_TextChanged" >
+                                        <jsRepEditor:WatermarkService.Watermark>
+                                            <TextBlock>5 [cm | px]</TextBlock>
+                                        </jsRepEditor:WatermarkService.Watermark>
+                                    </TextBox>
+                                </AdornerDecorator>
+
 
                                 <TextBlock Margin="0 20 0 10" HorizontalAlignment="Center" Text="Header Content"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
@@ -196,7 +221,14 @@
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <TextBlock Margin="0 0 0 10" HorizontalAlignment="Center" Text="Footer Height"
                                            Style="{StaticResource HeaderTextBlockStyle}" />
-                                <TextBox x:Name="TbFooterHeight" TextChanged="TbFooterHeight_TextChanged" />
+
+                                <AdornerDecorator>
+                                    <TextBox x:Name="TbFooterHeight" TextChanged="TbFooterHeight_TextChanged" >
+                                        <jsRepEditor:WatermarkService.Watermark>
+                                            <TextBlock>5 [cm | px]</TextBlock>
+                                        </jsRepEditor:WatermarkService.Watermark>
+                                    </TextBox>
+                                </AdornerDecorator>
 
                                 <TextBlock Margin="0 20 0 10" HorizontalAlignment="Center" Text="Footer Content"
                                            Style="{StaticResource HeaderTextBlockStyle}" />

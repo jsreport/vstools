@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EnvDTE;
@@ -11,7 +11,7 @@ using EnvDTE80;
 namespace JsReportVSTools.Impl
 {
     /// <summary>
-    /// Proxy over a reporting server manager running in separate domain
+    ///     Proxy over a reporting server manager running in separate domain
     /// </summary>
     public class ReportingServerManagerAdapter
     {
@@ -20,19 +20,40 @@ namespace JsReportVSTools.Impl
          * visual studio restart 
          */
 
-        private DTE2 _dte;
-        private dynamic _configuration;
-        private IReportingServerManager _serverManager;
-        private AppDomain _currentAppDomain;
-        private bool _overwriteTemplatesDuringNextSync;
+        private readonly DTE2 _dte;
+        private readonly AsyncLock _lock = new AsyncLock();
+        private IEnumerable<string> _cachedEngines;
         private IEnumerable<string> _cachedRecipes;
         private IEnumerable<string> _cachedSampleData;
-        private IEnumerable<string> _cachedEngines;
         private FileSystemWatcher _clientWatcher;
+        private dynamic _configuration;
+        private AppDomain _currentAppDomain;
+        private bool _overwriteTemplatesDuringNextSync;
+        private IReportingServerManager _serverManager;
 
         public ReportingServerManagerAdapter(DTE2 dte)
         {
             _dte = dte;
+        }
+
+        public Project CurrentProject { get; set; }
+
+        public string ServerUri
+        {
+            get { return _serverManager.ServerUri; }
+        }
+
+        public string CurrentShadowBinFolder { get; set; }
+
+        public string CurrentBinFolder
+        {
+            get
+            {
+                string outputPath =
+                    CurrentProject.ConfigurationManager.ActiveConfiguration.Properties.Item("OutputPath")
+                        .Value.ToString();
+                return Path.Combine(new FileInfo(CurrentProject.FullName).DirectoryName, outputPath);
+            }
         }
 
         private Project GetActiveProject(string fileName = null)
@@ -45,45 +66,32 @@ namespace JsReportVSTools.Impl
 
         public async Task EnsureStartedAsync(string fileName = null)
         {
-            //we keep just one instance of the server manager per projec
-            if (CurrentProject != null && GetActiveProject(fileName).UniqueName != GetCurrentProjectUniqueNameSafely())
+            using (await _lock.LockAsync())
             {
-                _overwriteTemplatesDuringNextSync = true;
-                await StopAsync();
-            }
+                try
+                {
+                    //we keep just one instance of the server manager per projec
+                    if (CurrentProject != null &&
+                        GetActiveProject(fileName).UniqueName != GetCurrentProjectUniqueNameSafely())
+                    {
+                        _overwriteTemplatesDuringNextSync = true;
+                        await StopAsync();
+                    }
 
-            try
-            {
-                _serverManager = _serverManager ?? CreateServerManager(fileName);
+                    Trace.WriteLine("Creating server");
+                    _serverManager = _serverManager ?? CreateServerManager(fileName);
+                    Trace.WriteLine("Created");
 
-                await RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(), CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                StopAsync();
-                throw;
-            }
-        }
-
-        private async Task EnsureStartedAsyncInner(string fileName = null)
-        {
-            //we keep just one instance of the server manager per projec
-            if (CurrentProject != null && GetActiveProject(fileName).UniqueName != GetCurrentProjectUniqueNameSafely())
-            {
-                _overwriteTemplatesDuringNextSync = true;
-                await StopAsync();
-            }
-
-            try
-            {
-                _serverManager = _serverManager ?? CreateServerManager(fileName);
-          
-                await RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(), CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                StopAsync();
-                throw;
+                    await
+                        RemoteTask.ClientComplete(_serverManager.EnsureStartedAsync(), CancellationToken.None)
+                            .ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    _serverManager = null;
+                    Trace.TraceError("Failed to start jsreport server " + e);
+                    throw;
+                }
             }
         }
 
@@ -102,23 +110,32 @@ namespace JsReportVSTools.Impl
 
         public async Task StopAsync()
         {
-            try
+            using (await _lock.LockAsync())
             {
-                ClearCache();
-
-                if (_serverManager != null)
+                Trace.WriteLine("Stopping server");
+                try
                 {
-                    var tmpServerManager = _serverManager;
-                    _serverManager = null;
-                    await RemoteTask.ClientComplete(tmpServerManager.StopAsync(), CancellationToken.None).ConfigureAwait(false);
+                    ClearCache();
+
+                    if (_serverManager != null)
+                    {
+                        IReportingServerManager tmpServerManager = _serverManager;
+                        _serverManager = null;
+                        await
+                            RemoteTask.ClientComplete(tmpServerManager.StopAsync(), CancellationToken.None)
+                                .ConfigureAwait(false);
+                    }
+                }
+                    //stopping does not need to go well 
+                catch (Exception e)
+                {
+                    Trace.TraceError(e.ToString());
+                }
+                finally
+                {
+                    Trace.WriteLine("Stoppedr");
                 }
             }
-            //stopping does not need to go well 
-            catch (Exception e)
-            {
-                
-            }
-
         }
 
         public void ClearCache()
@@ -143,14 +160,14 @@ namespace JsReportVSTools.Impl
             }
 
             CurrentProject = GetActiveProject(fileName);
-            
-            _dte.Solution.SolutionBuild.BuildProject("Debug", CurrentProject.UniqueName, true);
+
+            _dte.Solution.SolutionBuild.BuildProject(_dte.Solution.SolutionBuild.ActiveConfiguration.Name,
+                CurrentProject.UniqueName, true);
             if (_dte.Solution.SolutionBuild.LastBuildInfo > 0)
             {
-                throw new WeakJsReportException("Fix build errors first"); 
+                throw new WeakJsReportException("Fix build errors first");
             }
 
-            
 
             if (!File.Exists(Path.Combine(CurrentBinFolder, "jsreport.Client.dll")))
             {
@@ -184,8 +201,10 @@ namespace JsReportVSTools.Impl
                 ShadowCopyDirectories = "true"
             });
 
-            var type = typeof(ReportingServerFactory);
-            var factory = (IReportingServerFactory)_currentAppDomain.CreateInstanceFromAndUnwrap(type.Assembly.Location, type.FullName);
+            Type type = typeof (ReportingServerFactory);
+            var factory =
+                (IReportingServerFactory)
+                    _currentAppDomain.CreateInstanceFromAndUnwrap(type.Assembly.Location, type.FullName);
             return factory.Create(CurrentShadowBinFolder, CurrentProject.Name);
         }
 
@@ -195,7 +214,10 @@ namespace JsReportVSTools.Impl
             {
                 await EnsureStartedAsync(fileName).ConfigureAwait(false);
 
-                _cachedRecipes = await RemoteTask.ClientComplete(_serverManager.GetRecipesAsync(), CancellationToken.None).ConfigureAwait(false);
+                _cachedRecipes =
+                    await
+                        RemoteTask.ClientComplete(_serverManager.GetRecipesAsync(), CancellationToken.None)
+                            .ConfigureAwait(false);
             }
 
             return _cachedRecipes;
@@ -207,22 +229,30 @@ namespace JsReportVSTools.Impl
             {
                 await EnsureStartedAsync(fileName).ConfigureAwait(false);
 
-                _cachedEngines = await RemoteTask.ClientComplete(_serverManager.GetEnginesAsync(), CancellationToken.None).ConfigureAwait(false);
+                _cachedEngines =
+                    await
+                        RemoteTask.ClientComplete(_serverManager.GetEnginesAsync(), CancellationToken.None)
+                            .ConfigureAwait(false);
             }
 
             return _cachedEngines;
         }
 
-        public IEnumerable<string> GetSampleDataItems()
+        public async Task<IEnumerable<string>> GetSampleDataItems()
         {
-            if (_cachedSampleData != null)
-                return _cachedSampleData;
+            using (await _lock.LockAsync())
+            {
+                if (_cachedSampleData != null)
+                    return _cachedSampleData;
 
-            _dte.Solution.SolutionBuild.BuildProject("Debug", CurrentProject.UniqueName, true);
-            var sampleDataFromFiles = Directory.GetFiles(CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
-                .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p))).Distinct();
+                _dte.Solution.SolutionBuild.BuildProject(_dte.Solution.SolutionBuild.ActiveConfiguration.Name,
+                    CurrentProject.UniqueName, true);
+                IEnumerable<string> sampleDataFromFiles =
+                    Directory.GetFiles(CurrentBinFolder, "*.jsrep.json", SearchOption.AllDirectories)
+                        .Select(p => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(p))).Distinct();
 
-            return _cachedSampleData = sampleDataFromFiles.Concat(_serverManager.SampleDataItems).ToList();
+                return _cachedSampleData = sampleDataFromFiles.Concat(_serverManager.SampleDataItems).ToList();
+            }
         }
 
         public async Task<int> SynchronizeTemplatesAsync()
@@ -234,17 +264,22 @@ namespace JsReportVSTools.Impl
 
             //problem is visual studio does not delete old files in bin folder when moving files between folders, therefor 
             //I need to take files from vs project and cannot rely on bin fodler
-            var projectPath = new FileInfo(GetActiveProject().FullName).DirectoryName;
+            string projectPath = new FileInfo(GetActiveProject().FullName).DirectoryName;
 
-            foreach (var reportItem in GetActiveProject().GetAllProjectItems().Where(i => i.Name.Contains(".jsrep")))
+            foreach (
+                ProjectItem reportItem in GetActiveProject().GetAllProjectItems().Where(i => i.Name.Contains(".jsrep")))
             {
-                var filePath = Path.Combine(new FileInfo(reportItem.FileNames[0]).DirectoryName, reportItem.Name);
+                string filePath = Path.Combine(new FileInfo(reportItem.FileNames[0]).DirectoryName, reportItem.Name);
                 File.Copy(filePath, filePath.Replace(projectPath, CurrentBinFolder), true);
             }
 
-            FileSystemHelpers.Copy(CurrentBinFolder, CurrentShadowBinFolder, "*.jsrep*", _overwriteTemplatesDuringNextSync);
+            FileSystemHelpers.Copy(CurrentBinFolder, CurrentShadowBinFolder, "*.jsrep*",
+                _overwriteTemplatesDuringNextSync);
             _overwriteTemplatesDuringNextSync = false;
-            return await RemoteTask.ClientComplete(_serverManager.SynchronizeTemplatesAsync(), CancellationToken.None).ConfigureAwait(false);
+            return
+                await
+                    RemoteTask.ClientComplete(_serverManager.SynchronizeTemplatesAsync(), CancellationToken.None)
+                        .ConfigureAwait(false);
         }
 
         private void CopyToShadowFolder()
@@ -253,28 +288,17 @@ namespace JsReportVSTools.Impl
             FileSystemHelpers.Copy(CurrentBinFolder, CurrentShadowBinFolder);
         }
 
-        public Project CurrentProject { get; set; }
-
         public object CreateReportingService()
         {
             return _serverManager.CreateReportingService();
         }
 
-        public string ServerUri
-        {
-            get { return _serverManager.ServerUri; }
-        }
-
-        public string CurrentShadowBinFolder { get; set; }
-
-        public string CurrentBinFolder
-        {
-            get { return Path.Combine(new FileInfo(CurrentProject.FullName).DirectoryName, "Bin", "Debug"); }
-        }
-
         public async Task<object> RenderAsync(string shortid, string sampleData)
         {
-            return await RemoteTask.ClientComplete(_serverManager.RenderAsync(shortid, sampleData), CancellationToken.None).ConfigureAwait(false);
+            return
+                await
+                    RemoteTask.ClientComplete(_serverManager.RenderAsync(shortid, sampleData), CancellationToken.None)
+                        .ConfigureAwait(false);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace JsReportVSTools.Impl
                 result = await tcs.Task;
             }
 
-            //tih is frozing things
+            //this is frozing things
             //await Task.Yield(); // HACK!!
 
             return result;

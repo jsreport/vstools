@@ -178,6 +178,8 @@ namespace JsReportVSTools
             this.editorControl.StateChanged += new System.EventHandler(this.OnStateChanged);                           
         }
 
+        
+
         /// <summary>
         /// returns the name of the file currently loaded
         /// </summary>
@@ -1127,7 +1129,11 @@ namespace JsReportVSTools
                     backupObsolete = true;
                 }
             }
-        }    
-          
+        }
+
+        public void MarkRerfeshRequired()
+        {
+            editorControl.MarkRerfeshRequired();
+        }
     }
 }

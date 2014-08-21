@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,47 +19,95 @@ namespace JsReportVSTools.JsRepEditor
     public partial class JsReportEditor : UserControl
     {
         private ReportDefinition _state;
+        private string _fileName;
+        private bool _reloadInProgress;
+        private readonly object _locker = new object();
+        private bool _refreshRequired;
+        private bool _doRefreshWhenLayoutWillChange;
 
         public JsReportEditor()
         {
             InitializeComponent();
+
+            LayoutUpdated += JsReportEditor_LayoutUpdated;
+            IsVisibleChanged += JsReportEditor_IsVisibleChanged;
+        }
+        
+        void JsReportEditor_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            //somehow it frozes when I do ReloadOptions in this method, so I postpone it until next LayoutUpdated event
+
+            if (_refreshRequired && Visibility == Visibility.Visible)
+                _doRefreshWhenLayoutWillChange = true;
         }
 
-        public async Task LoadStateFromFile(string fileName)
+        async void JsReportEditor_LayoutUpdated(object sender, EventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Wait;
-            _state = SetupHelpers.ReadReportDefinition(fileName);
+            if (_doRefreshWhenLayoutWillChange)
+            {
+                _doRefreshWhenLayoutWillChange = false;
+                await ReloadOptions();
+            }
+        }
+
+        public async Task ReloadOptions(bool throwErrors = true)
+        {
+            lock (_locker)
+            {
+                if (_reloadInProgress)
+                    return;
+
+                _reloadInProgress = true;
+            }
 
             try
             {
-                await FillEngines(fileName);
-                await FillRecipes(fileName);
+                Trace.WriteLine("Starting");
+                Mouse.OverrideCursor = Cursors.Wait;
 
-                SetupHelpers.GetSampleData()
-                    .ToList()
-                    .ForEach(s =>
-                    {
-                        var item = new CbItem() {Text = s, Id = s};
-                        if (!CbSampleData.Items.Contains(item))
-                            CbSampleData.Items.Add(item);
-                    });
+                await FillEngines(_fileName);
+                await FillRecipes(_fileName);
+
+                CbSampleData.Items.Clear();
+                (await SetupHelpers.GetSampleData()).ToList()
+                    .ForEach(s => CbSampleData.Items.Add(new CbItem() { Text = s, Id = s }));
 
                 RefreshView();
             }
             catch (WeakJsReportException e)
             {
-                MessageBox.Show(e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
+                Trace.TraceError("Error when reloading editor drop downs " + e.ToString());
+                if (throwErrors)
+                {
+                    MessageBox.Show(e.Message, "jsreport error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
+                }
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
+                Trace.TraceError("Error when reloading editor drop downs " + exception.ToString());
+                if (throwErrors)
+                {
+                    MessageBox.Show(exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Task.Delay(1000).ContinueWith(t => Task.Run(() => SetupHelpers.TryCloseActiveDocument()));
+                }
             }
             finally
             {
+                Trace.WriteLine("Finishing");
                 Mouse.OverrideCursor = null;
+                _reloadInProgress = false;
+                _refreshRequired = false;
             }
+        }
+
+        public async Task LoadStateFromFile(string fileName)
+        {
+            _fileName = fileName;
+
+            _state = SetupHelpers.ReadReportDefinition(fileName);
+
+            await ReloadOptions();
         }
 
         private void RefreshView()
@@ -97,14 +146,18 @@ namespace JsReportVSTools.JsRepEditor
 
         private async Task FillRecipes(string fileName)
         {
+            Dispatcher.Invoke(() => CbRecipe.Items.Clear());
+
             foreach (string r in await SetupHelpers.GetRecipesAsync(fileName).ConfigureAwait(false))
             {
+                Trace.TraceInformation("adding " + r);
                 Dispatcher.Invoke(() => { CbRecipe.Items.Add(new CbItem() {Text = r, Id = r}); });
             }
         }
 
         private async Task FillEngines(string fileName)
         {
+            Dispatcher.Invoke(() => CbEngine.Items.Clear());
             foreach (string r in await SetupHelpers.GetEnginesAsync(fileName).ConfigureAwait(false))
             {
                 Dispatcher.Invoke(() => { CbEngine.Items.Add(new CbItem() {Text = r, Id = r}); });
@@ -243,6 +296,11 @@ namespace JsReportVSTools.JsRepEditor
             {
                 SetupHelpers.OpenJsReportInBrowser();
             }
+        }
+
+        public void MarkRerfeshRequired()
+        {
+            _refreshRequired = true;
         }
     }
 
