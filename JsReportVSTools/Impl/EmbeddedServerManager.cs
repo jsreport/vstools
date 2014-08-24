@@ -75,7 +75,7 @@ namespace JsReportVSTools.Impl
                     ManagementObject mo = results.Cast<ManagementObject>().FirstOrDefault();
                     if (mo != null)
                     {
-                        return (string)mo["ExecutablePath"];
+                        return mo["ExecutablePath"] == null ? "" : (string)mo["ExecutablePath"];
                     }
                 }
             }
