@@ -60,10 +60,8 @@ namespace JsReportVSTools.Impl
         /// </summary>
         public override object CreateReportingService()
         {
-            Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
-
-            return Activator.CreateInstance(reportingServiceType, ServerUri);
-        }
+            return Activator.CreateInstance(LoadReportingServiceType(), ServerUri);
+        }     
 
         private string GetMainModuleFilePath(int processId)
         {

@@ -28,9 +28,7 @@ namespace JsReportVSTools.Impl
 
         public override object CreateReportingService()
         {
-            Type reportingServiceType = AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
-
-            return Activator.CreateInstance(reportingServiceType, _remoteServerUri, _username, _password);
+            return Activator.CreateInstance(LoadReportingServiceType(), _remoteServerUri, _username, _password);
         }
 
         public string ServerUri { get { return _remoteServerUri; } }

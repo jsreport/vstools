@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Permissions;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace JsReportVSTools.Impl
 {
@@ -100,6 +101,29 @@ namespace JsReportVSTools.Impl
         public override object InitializeLifetimeService()
         {
             return null;
+        }
+
+        protected Type LoadReportingServiceType()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
+            return AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
+        }
+
+        private readonly IList<string> _triedWithoutVersion = new List<string>();
+
+        System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            string assemblyName = new AssemblyName(args.Name).Name;
+
+            if (_triedWithoutVersion.Contains(assemblyName))
+            {
+                return null;
+            }
+
+            _triedWithoutVersion.Add(assemblyName);
+            return Assembly.Load(assemblyName);
         }
     }
 
