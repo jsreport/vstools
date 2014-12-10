@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="60546472-b12d-4ad6-b5ea-74401d44d9fc" Version="0.2.7" Language="en-US" Publisher="Jan Blaha" />
+    <Identity Id="60546472-b12d-4ad6-b5ea-74401d44d9fc" Version="0.2.8" Language="en-US" Publisher="Jan Blaha" />
     <DisplayName>jsreport visual studio tools beta</DisplayName>
     <Description xml:space="preserve">Extension allowing to use jsreport open source reporting platform inside visual studio. It allows to create any pdf report you can think of without lame designers just using html and javascript.</Description>
     <MoreInfo>http://jsreport.net/</MoreInfo>

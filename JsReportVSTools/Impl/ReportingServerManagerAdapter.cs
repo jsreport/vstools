@@ -58,10 +58,10 @@ namespace JsReportVSTools.Impl
 
         private Project GetActiveProject(string fileName = null)
         {
-            if (_dte.ActiveDocument != null)
-                return _dte.ActiveDocument.ProjectItem.ContainingProject;
+            if (fileName != null)
+                return _dte.Solution.FindProjectItem(fileName).ContainingProject;
 
-            return _dte.Solution.FindProjectItem(fileName).ContainingProject;
+            return _dte.ActiveDocument.ProjectItem.ContainingProject;
         }
 
         public async Task EnsureStartedAsync(string fileName = null)
@@ -88,6 +88,7 @@ namespace JsReportVSTools.Impl
                 }
                 catch (Exception e)
                 {
+                    CurrentProject = null;
                     _serverManager = null;
                     Trace.TraceError("Failed to start jsreport server " + e);
                     throw;
