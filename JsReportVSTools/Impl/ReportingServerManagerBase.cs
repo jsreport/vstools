@@ -59,10 +59,21 @@ namespace JsReportVSTools.Impl
         public RemoteTask<object> RenderAsync(string shortid, string sampleDataName)
         {
             dynamic rs = CreateReportingService();
-
+            
             return RemoteTask.ServerStart<object>(async cts =>
             {
-                dynamic report = await rs.RenderAsync(shortid, PrepareSampleData(sampleDataName));
+                dynamic renderRequest = Activator.CreateInstance(LoadType("jsreport.Client.RenderRequest"));
+                renderRequest.template = (dynamic) Activator.CreateInstance(LoadType("jsreport.Client.Entities.Template"));
+                renderRequest.template.shortid = shortid;
+                renderRequest.data = PrepareSampleData(sampleDataName);
+                renderRequest.options = (dynamic)Activator.CreateInstance(LoadType("jsreport.Client.RenderOptions"));
+                try
+                {
+                    renderRequest.options.preview = true;
+                }//back compatibility
+                catch (Exception e) {  }
+
+                dynamic report = await rs.RenderAsync(renderRequest);
                 return new Report
                    {
                        Content = report.Content,
@@ -105,10 +116,15 @@ namespace JsReportVSTools.Impl
 
         protected Type LoadReportingServiceType()
         {
+            return LoadType("jsreport.Client.ReportingService");
+        }
+
+        protected Type LoadType(string typeName)
+        {
             AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-            return AppDomain.CurrentDomain.Load("jsreport.Client").GetType("jsreport.Client.ReportingService");
+            return AppDomain.CurrentDomain.Load("jsreport.Client").GetType(typeName);
         }
 
         private readonly IList<string> _triedWithoutVersion = new List<string>();
